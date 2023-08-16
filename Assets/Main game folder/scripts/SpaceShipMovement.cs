@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 using UnityEngine.Experimental.AI;
 
@@ -15,12 +16,7 @@ public class SpaceShipMovement : MonoBehaviour
     float leftXBoundary = -9.75f;
     float upYBoundary= 4.18f;
     float downYBoundary = -4.18f;
-    // Start is called before the first frame update
-    void Start()
-    {
-
-    }
-
+    float angleForRotation;
     // Update is called once per frame
     void Update()
     {
@@ -32,8 +28,9 @@ public class SpaceShipMovement : MonoBehaviour
         movementVector.y = vertical;
         transform.position += Time.deltaTime * speed * movementVector;
 
-        var angle = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
-        transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
+        angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
+
+        transform.rotation = Quaternion.AngleAxis(angleForRotation, Vector3.forward);
 
         BoundaryChecks();
             
@@ -51,6 +48,5 @@ public class SpaceShipMovement : MonoBehaviour
             transform.position = new Vector2(transform.position.x, upYBoundary);
     }
 
-    
-    
+
 }

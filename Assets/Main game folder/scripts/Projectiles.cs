@@ -4,24 +4,40 @@ using UnityEngine;
 
 public class Projectiles : MonoBehaviour
 {
-    [SerializeField] private float speed = 3f;
-    private Vector3 directionVector = new(1, 0,0);
-    // Start is called before the first frame update
-    void Start()
-    {
-        // Diff speed for missile and bullet
-    }
+    [SerializeField] private float bulletSpeed = 5f;
+    [SerializeField] private float missileSpeed = 3f;
+    private float destroyTimer = 3f;
 
+    
+    private void OnEnable()
+    {
+        this.transform.parent = null;
+    }
     // Update is called once per frame
     void Update()
     {
+        destroyTimer -= Time.deltaTime;
+        if (destroyTimer <= 0) Destroy(gameObject);
+        if (gameObject.CompareTag("GunEnemy"))
+            transform.position += Time.deltaTime * bulletSpeed * transform.right;
+        else if (gameObject.CompareTag("PlayerBullet"))
+        {
+            
+            transform.position += Time.deltaTime * bulletSpeed * transform.right;
+            
+        }
+            
+        else if (gameObject.CompareTag("PlayerMissile"))
+        {
+            
+            transform.position += Time.deltaTime * missileSpeed * transform.right;
+        }
+            
+        else if (gameObject.CompareTag("MissileEnemy"))
+            transform.position += Time.deltaTime * missileSpeed * transform.right;
 
     }
 
-    private void OnBecameInvisible()
-    {
-        Destroy(gameObject);
-    }
-
+    
 
 }

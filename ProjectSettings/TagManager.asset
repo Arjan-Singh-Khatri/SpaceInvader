@@ -8,6 +8,11 @@ TagManager:
   - PlayerBullet
   - GunEnemy
   - MissileEnemy
+  - Enemy
+  - Health
+  - Shield
+  - BossBullet
+  - Boss
   layers:
   - Default
   - TransparentFX
