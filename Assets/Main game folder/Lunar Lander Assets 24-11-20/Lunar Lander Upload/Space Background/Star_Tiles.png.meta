@@ -204,10 +204,10 @@ TextureImporter:
       name: Star_Tiles_4
       rect:
         serializedVersion: 2
-        x: 65
-        y: 0
-        width: 15
-        height: 13
+        x: 77
+        y: 6
+        width: 1
+        height: 1
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -246,10 +246,10 @@ TextureImporter:
       name: Star_Tiles_6
       rect:
         serializedVersion: 2
-        x: 96
-        y: 0
-        width: 16
-        height: 16
+        x: 71
+        y: 9
+        width: 1
+        height: 1
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -259,6 +259,27 @@ TextureImporter:
       bones: []
       spriteID: 46a935f0bdcdeb64ab33243e6a2233ae
       internalID: -1075583677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Star_Tiles_7
+      rect:
+        serializedVersion: 2
+        x: 53
+        y: 15
+        width: 1
+        height: 1
+      alignment: 9
+      pivot: {x: 0.5970993, y: 0.5084884}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b2f450ec104dc84b81c665af0fe1825
+      internalID: -314183292
       vertices: []
       indices: 
       edges: []
@@ -278,6 +299,7 @@ TextureImporter:
       Star_Tiles_3: -1807936967
       Star_Tiles_6: -1075583677
       Star_Tiles_1: 1036659064
+      Star_Tiles_7: -314183292
       Star_Tiles_0: 1138513597
       Star_Tiles_2: -1383354007
       Star_Tiles_4: 1041723668

@@ -29,17 +29,16 @@ public class MainMenu : MonoBehaviour
     [SerializeField] Slider healthSlider;
 
     [Header("Wave Text")]
-    [SerializeField] Transform wavePosition;
     [SerializeField] TextMeshProUGUI waveText;
     [SerializeField] Ease ease;
-    [SerializeField] Transform waveTextOgPosition;
+    Vector3 waveTextOgPosition = new Vector3(0,273f, 0);
     
     
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        Events.gameOver += GameOverUI;
         Events.waveDelegate += WaveTextMove;
         Events.ammoCount += AmmoCount;
         Events.healthCount += HealthSlider;
@@ -112,6 +111,12 @@ public class MainMenu : MonoBehaviour
 
     }
 
+    void GameOverUI()
+    {
+        gameOverPanel.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
     void HealthSlider(int health)
     {
         healthSlider.value = health;
@@ -123,17 +128,24 @@ public class MainMenu : MonoBehaviour
     #region Wave Text UI
     void WaveTextMove(int waveNum)
     {
+        waveText.gameObject.SetActive(true);
         waveText.text = "Wave " + waveNum.ToString();
-        waveText.gameObject.transform.DOMove(wavePosition.position,2f).SetEase(ease);
-        Invoke(nameof(WaveTextPositionReturn), 1.5f);
+        waveText.rectTransform.DOAnchorPos(new Vector3(0, -434, 0), 3f).SetEase(ease);
+        Invoke(nameof(WaveTextPositionReturn), 3f);
         
     }
     void WaveTextPositionReturn()
     {
-        waveText.gameObject.transform.DOMove(waveTextOgPosition.position,2f).SetEase(ease); 
+        waveText.gameObject.SetActive(false);
     }
     #endregion
 
-    
-    
+
+    private void OnDisable()
+    {
+        Events.gameOver -= GameOverUI;
+        Events.waveDelegate -= WaveTextMove;
+        Events.ammoCount -= AmmoCount;
+        Events.healthCount -= HealthSlider;
+    }
 }

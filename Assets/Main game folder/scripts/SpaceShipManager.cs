@@ -35,6 +35,7 @@ public class SpaceShipManager : MonoBehaviour
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
         ShootingManagerFunction();
+
     }
 
     
@@ -43,8 +44,7 @@ public class SpaceShipManager : MonoBehaviour
         playerHealth += 20;
         if (playerHealth > 100)
         {
-            //Increase the number of lives 
-            // if number of lives is max do nothing 
+            playerHealth = 100;
         }
     }
     void TakeDamage(int Damage)
@@ -52,8 +52,8 @@ public class SpaceShipManager : MonoBehaviour
         playerHealth -= Damage;
         if(playerHealth < 0)
         {
+            Events.gameOver();
             Destroy(gameObject);
-            //GameOverScreen(); use Actions for player health ui
         }
         Events.healthCount(playerHealth);
     }
@@ -82,17 +82,22 @@ public class SpaceShipManager : MonoBehaviour
         Events.ammoCount(bulletCount, missleCount);
     }
 
-    void DropTaken()
-    {
-        // use events to co-ordinate with Ui of bullets and missiles 
-    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // MAKE ANOTHER TAG AND OTHER PREFAB FOR COLLECTABLE
-        if (collision.gameObject.CompareTag("Drop"))
+        if (collision.gameObject.CompareTag("DropBullet"))
         {
-            //DropLogic
+            bulletCount += 10;
+            Events.ammoCount(bulletCount, missleCount);
+            Destroy(collision.gameObject);
+        }
+
+        if (collision.gameObject.CompareTag("DropMissile"))
+        {
+            missleCount += 5;
+            Events.ammoCount(bulletCount, missleCount);
+            Destroy(collision.gameObject);
         }
 
         if (collision.gameObject.CompareTag("Health"))

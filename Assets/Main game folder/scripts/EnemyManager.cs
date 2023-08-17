@@ -10,11 +10,12 @@ public class EnemyManager : MonoBehaviour
     [SerializeField] private float instantiateTimer = 0f;
     [SerializeField] private float waveIntervalTimer = 5f;
     [SerializeField] private GameObject bossPrefab;
+    [SerializeField] private Transform bossLocation;
 
     private List<GameObject> EnemiesListTospwan = new();
     private List<GameObject> SpwanedEnemies = new();
     private int waveValue = 0;
-    private int waveNumber = 1;
+    private int waveNumber = 0;
     private bool enemiesLeft;
     // Start is called before the first frame update
     void Start()
@@ -24,38 +25,44 @@ public class EnemyManager : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (waveNumber > 3) return;
-        if (enemiesLeft)
+        if (waveNumber==3)
         {
-            instantiateTimer -= Time.fixedDeltaTime;
-            if(instantiateTimer <= 0)
+            InstantiateBoss();   
+            gameObject.SetActive(false);
+        }else
+        {
+            if (enemiesLeft)
             {
-                instantiateTimer = 4f;
-                if (EnemiesListTospwan.Count > 0)
+                instantiateTimer -= Time.fixedDeltaTime;
+                if(instantiateTimer <= 0)
                 {
-                    GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
-                    EnemiesListTospwan.RemoveAt(0);
-                    SpwanedEnemies.Add(enemy);
+                    instantiateTimer = 4f;
+                    if (EnemiesListTospwan.Count > 0)
+                    {
+                        GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
+                        EnemiesListTospwan.RemoveAt(0);
+                        SpwanedEnemies.Add(enemy);
+                    }
+                    else
+                        if (!CheckIfEnemyleft()) enemiesLeft = false;            
                 }
-                else
-                    if (!CheckIfEnemyleft()) enemiesLeft = false;            
-            }
-            
-        } 
-        else
-        {
-            SpwanedEnemies.Clear();
-            waveIntervalTimer -= Time.fixedDeltaTime;
-            if (waveIntervalTimer <= 0)
+            } 
+            else
             {
-                ++waveNumber;
-                Events.waveDelegate(waveNumber);
-                waveValue = waveNumber * 10 + 5;
-                waveIntervalTimer = 5f;
-                GenerateEnemies();
-                enemiesLeft = true;
-            }
-        }  
+                SpwanedEnemies.Clear();
+                waveIntervalTimer -= Time.fixedDeltaTime;
+                if (waveIntervalTimer <= 0)
+                {
+                    ++waveNumber;
+                    Events.waveDelegate(waveNumber);
+                    waveValue = waveNumber * 10 + 5;
+                    waveIntervalTimer = 5f;
+                    GenerateEnemies();
+                    enemiesLeft = true;
+                }
+            } 
+        }
+         
     }
 
     #region New
@@ -93,7 +100,7 @@ public class EnemyManager : MonoBehaviour
     #region BossPhase
     private void InstantiateBoss()
     {
-        
+        Instantiate(bossPrefab,bossLocation.position,Quaternion.identity);
     }
 
     #endregion

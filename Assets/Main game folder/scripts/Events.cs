@@ -11,5 +11,6 @@ public class Events : MonoBehaviour
     public delegate void AmmoCount(int bullet, int missile);
     public static AmmoCount ammoCount;
     public delegate void HealthCount(int health);
-    public static HealthCount healthCount;  
+    public static HealthCount healthCount;
+    public static Action gameOver;
 }

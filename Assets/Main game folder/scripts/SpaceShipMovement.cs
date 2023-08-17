@@ -1,39 +1,55 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.Experimental.AI;
 
-public class SpaceShipMovement : MonoBehaviour
+public class SpaceShipMovement : NetworkBehaviour
 {
-
+    
+    
     private float horizontal;
     private float vertical;
-    private Vector3 movementVector = new Vector3(1,1,0);
-    private float speed = 5f;
 
-    float rightXBoundary = 9.75f;
-    float leftXBoundary = -9.75f;
-    float upYBoundary= 4.18f;
-    float downYBoundary = -4.18f;
+    private Vector3 movementVector = new(1,1,0);
+    private readonly float speed = 5f;
+    readonly float rightXBoundary = 9.75f;
+    readonly float leftXBoundary = -9.75f;
+    readonly float upYBoundary= 4.18f;
+    readonly float downYBoundary = -4.18f;
     float angleForRotation;
+
+    Vector2 inputAxis;
+    Quaternion previousRotation;
     // Update is called once per frame
     void Update()
     {
-        // Player Ship rotate According to Movement based on Input 
-
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            if (!IsOwner) return;
+            Movement();
+            BoundaryChecks();
+        }else 
+            #region Movement
+            Movement();
+            //Boundary Check
+            BoundaryChecks();
+            #endregion
+    }
+    void Movement()
+    {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
+        inputAxis.x = horizontal; inputAxis.y = vertical;
         movementVector.x = horizontal;
         movementVector.y = vertical;
         transform.position += Time.deltaTime * speed * movementVector;
-
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
-
-        transform.rotation = Quaternion.AngleAxis(angleForRotation, Vector3.forward);
-
-        BoundaryChecks();
-            
+        if (inputAxis.magnitude < 0.1f)
+            transform.rotation = previousRotation;
+        else
+            transform.rotation = Quaternion.AngleAxis(angleForRotation, Vector3.forward);
+        previousRotation = transform.rotation;
     }
 
     void BoundaryChecks()
