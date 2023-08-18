@@ -1,20 +1,21 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
 
-public class Projectiles : MonoBehaviour
+public class Projectiles : NetworkBehaviour
 {
     [SerializeField] private float bulletSpeed = 5f;
     [SerializeField] private float missileSpeed = 4f;
-    private Quaternion quaternionForRotation;
+    //private Quaternion quaternionForRotation;
     private float destroyTimer = 3f;
 
     private void Start()
     {
-        quaternionForRotation = this.transform.parent.rotation;
-        this.transform.parent = null;
-        transform.rotation = quaternionForRotation;
+        //quaternionForRotation = this.transform.parent.rotation;
+        //this.transform.parent = null;
+        //transform.rotation = quaternionForRotation;
     }
     // Update is called once per frame
     void Update()
@@ -33,6 +34,17 @@ public class Projectiles : MonoBehaviour
 
     }
 
-    
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") && GameStateManager.Instance.currentGameMode==GameMode.MultiPlayer)
+            DespawnServerRpc();
+
+    }
+
+    [ServerRpc(RequireOwnership =false)]
+    void DespawnServerRpc()
+    {
+        gameObject.GetComponent<NetworkObject>().Despawn(true);
+    }
 
 }

@@ -19,7 +19,6 @@ public class SpaceShipMovement : NetworkBehaviour
     readonly float downYBoundary = -4.18f;
     float angleForRotation;
 
-    Vector2 inputAxis;
     Quaternion previousRotation;
     // Update is called once per frame
     void Update()
@@ -29,23 +28,29 @@ public class SpaceShipMovement : NetworkBehaviour
             if (!IsOwner) return;
             Movement();
             BoundaryChecks();
-        }else 
+        }
+        if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
             #region Movement
+
             Movement();
             //Boundary Check
             BoundaryChecks();
             #endregion
+
+        }
+        Debug.Log(Time.timeScale);
     }
     void Movement()
     {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
-        inputAxis.x = horizontal; inputAxis.y = vertical;
         movementVector.x = horizontal;
         movementVector.y = vertical;
+        Debug.Log(horizontal);
         transform.position += Time.deltaTime * speed * movementVector;
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
-        if (inputAxis.magnitude < 0.1f)
+        if (movementVector.magnitude < 0.1f)
             transform.rotation = previousRotation;
         else
             transform.rotation = Quaternion.AngleAxis(angleForRotation, Vector3.forward);

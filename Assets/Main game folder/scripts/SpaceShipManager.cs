@@ -1,13 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.PackageManager;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
-using static UnityEditor.Searcher.SearcherWindow.Alignment;
 
-public class SpaceShipManager : MonoBehaviour
+public class SpaceShipManager : NetworkBehaviour
 {
     [Header("Basic Components")]
-    private Animator anim;
     private int playerHealth = 50;
     private float horizontal;
     private float vertical;
@@ -22,18 +21,14 @@ public class SpaceShipManager : MonoBehaviour
     int damageTakenFromMissile = 20;
     int damageTakenFromBullet = 9;
     int damageTakeFromCollision = 5;
-    // Start is called before the first frame update
-    void Start()
-    {
-        anim = GetComponent<Animator>();
-        
-    }
+    float angleForRotation;
 
     // Update is called once per frame
     void Update()
     {
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
+        angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
         ShootingManagerFunction();
 
     }
@@ -60,6 +55,7 @@ public class SpaceShipManager : MonoBehaviour
 
     void ShootingManagerFunction()
     {
+
         if (Input.GetKeyDown(KeyCode.Z) && bulletCount > 0)
             BulletInstantiate();
         else if (Input.GetKeyDown(KeyCode.X) && missleCount > 0)
@@ -68,18 +64,51 @@ public class SpaceShipManager : MonoBehaviour
 
     void BulletInstantiate()
     {
-        var angleForRotation = Mathf.Atan2(vertical,horizontal) * Mathf.Rad2Deg;
-        Instantiate(bullet, fireingPoint.position, Quaternion.AngleAxis(angleForRotation,Vector3.forward),fireingPoint.transform);
-        bulletCount -= 1;
-        Events.ammoCount(bulletCount,missleCount);
+
+        if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Instantiate(bullet, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward));
+            bulletCount -= 1;
+            Events.ammoCount(bulletCount, missleCount);
+        }else
+        {
+
+            BulletSpawnServerRpc();
+            bulletCount -= 1;
+            Events.ammoCount(bulletCount, missleCount);
+        }
+
     }
+    [ServerRpc(RequireOwnership =false)]
+    void BulletSpawnServerRpc()
+    {
+        GameObject instantiatedBullet = Instantiate(bullet, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward));
+        instantiatedBullet.GetComponent<NetworkObject>().Spawn();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void MissileSpawnServerRpc()
+    {
+        GameObject instantiatedBullet = Instantiate(missile, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward));
+        instantiatedBullet.GetComponent<NetworkObject>().Spawn();
+    }
+
 
     void MissileInstantiate()
     {
-        var angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
-        Instantiate(missile, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward), fireingPoint.transform);
-        missleCount -= 1;
-        Events.ammoCount(bulletCount, missleCount);
+        if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Instantiate(missile, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward));
+            bulletCount -= 1;
+            Events.ammoCount(bulletCount, missleCount);
+        }
+        else
+        {
+
+            MissileSpawnServerRpc();
+            bulletCount -= 1;
+            Events.ammoCount(bulletCount, missleCount);
+        }
     }
 
 
@@ -110,7 +139,6 @@ public class SpaceShipManager : MonoBehaviour
         {
             TakeDamage(damageTakenFromBullet);
             Destroy(collision.gameObject);
-            
         }
 
         if (collision.gameObject.CompareTag("MissileEnemy"))
@@ -134,7 +162,6 @@ public class SpaceShipManager : MonoBehaviour
         if (collision.gameObject.CompareTag("Boss"))
         {
             TakeDamage(10);
-
         }
 
         

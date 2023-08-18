@@ -288,7 +288,8 @@ MonoBehaviour:
     NetworkTransport: {fileID: 115697998}
     PlayerPrefab: {fileID: 2902715986107336274, guid: c89b590475552dc469af1f17a718f05f, type: 3}
     Prefabs:
-      NetworkPrefabsLists: []
+      NetworkPrefabsLists:
+      - {fileID: 11400000, guid: 584f7b1fdb0d9de41be7e5f305452620, type: 2}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 0
@@ -863,7 +864,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &411841181
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1197,7 +1198,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 689d5e9f12705474b8ca37257e2d8ace, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentGameMode: 1
+  currentGameMode: 0
 --- !u!4 &491493464
 Transform:
   m_ObjectHideFlags: 0
@@ -2591,6 +2592,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1080696698}
   - component: {fileID: 1080696699}
+  - component: {fileID: 1080696700}
   m_Layer: 0
   m_Name: EnemyManager
   m_TagString: Untagged
@@ -2642,6 +2644,26 @@ MonoBehaviour:
   waveIntervalTimer: 5
   bossPrefab: {fileID: 4856236605075534608, guid: f09a6f4811188564da1185549ab69eba, type: 3}
   bossLocation: {fileID: 0}
+--- !u!114 &1080696700
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1080696697}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 4189546395
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
 --- !u!1 &1088349701
 GameObject:
   m_ObjectHideFlags: 0
@@ -2829,9 +2851,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 772500d74fb395c49b1da5e0e48be0c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  server: {fileID: 0}
-  client: {fileID: 0}
-  host: {fileID: 0}
+  server: {fileID: 1220429066}
+  client: {fileID: 1088349703}
+  host: {fileID: 433277809}
 --- !u!1 &1151861916
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,5 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class EnemyB : Enemy
@@ -11,11 +13,10 @@ public class EnemyB : Enemy
 
     private readonly int damageFromMissile = 25;
     private readonly int damageFromBullet = 10;
-    private readonly int damageFromCollision = 5;
     private float shootTimer = 2f;
 
     [Header("Shooting")]
-    [SerializeField] private Transform shootingPoint;
+    Transform shootingPoint;
     [SerializeField] GameObject bulletPrefab;
 
     [Header("Animation")]
@@ -27,10 +28,14 @@ public class EnemyB : Enemy
 
     [Header("Drop")]
     [SerializeField] GameObject[] listOfDropItems;
-    
+
+    [Header("Multiplayer")]
+    GameObject playerForMultiplayer;
+    ulong randomClientID;
     // Start is called before the first frame update
     void Start()
     {
+        shootingPoint = GetComponentInChildren<Transform>();
         player = GameObject.FindGameObjectWithTag("Player");
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
@@ -40,23 +45,60 @@ public class EnemyB : Enemy
             {
                 destroyAnimationTIme = clip.length;
             }
-
-
         }
+        CallServerToGetClientListServerRpc();
+
     }
     // Update is called once per frame
     void Update()
     {
         if (isDestroyed) return;
-        shootTimer -= Time.deltaTime;
-        Movement(ref player, speed);
-        if (shootTimer <= 0)
+        if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
-            Shooting(ref shootingPoint, ref bulletPrefab, ref player);
-            shootTimer = 2f;
+            shootTimer -= Time.deltaTime;
+            Movement(player, speed);
+            if (shootTimer <= 0)
+            {
+                Shooting(shootingPoint, bulletPrefab);
+                shootTimer = 2f;
+            }
         }
-
+        else
+        {
+            if (!IsOwner) return;
+            shootTimer -= Time.deltaTime;
+            Movement(playerForMultiplayer, speed);
+            if (shootTimer <= 0)
+            { 
+                CallToShootServerRpc();
+                shootTimer = 2f;
+            }
+        }
         ShipDestroy();
+    }
+    [ServerRpc(RequireOwnership =false)]
+    void CallServerToGetClientListServerRpc()
+    {
+        GetClientListClientRpc((ulong)Random.Range(0, NetworkManager.Singleton.ConnectedClientsIds.Count));
+    }
+
+    [ClientRpc]
+    void GetClientListClientRpc(ulong randomClientID)
+    {
+        AssignMultiplayerPlayerObject(randomClientID);
+    }
+
+    void AssignMultiplayerPlayerObject(ulong randomClientID)
+    {
+        randomClientID = (ulong)Random.Range(0, NetworkManager.Singleton.ConnectedClientsIds.Count);
+
+        playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[randomClientID].PlayerObject.gameObject;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void CallToShootServerRpc()
+    {
+        Shooting(shootingPoint,bulletPrefab);   
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
@@ -91,13 +133,29 @@ public class EnemyB : Enemy
         int randomnumberforitemdrop = Random.Range(0, 9);
         if (randomnumberforitemdrop > -1)
         {
-            Instantiate(listOfDropItems[Random.Range(0, listOfDropItems.Length)], transform.position, Quaternion.identity);
+            if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+            {
+                GameObject drop = Instantiate(listOfDropItems[Random.Range(0, listOfDropItems.Length)], transform.position, Quaternion.identity);
+                drop.GetComponent<NetworkObject>().Spawn();
+            }
+            else
+            {
+                GameObject drop = Instantiate(listOfDropItems[Random.Range(0, listOfDropItems.Length)], transform.position, Quaternion.identity);
+            }
         }
-        Debug.Log("Dropped");
 
     }
+    [ServerRpc]
+    void DespawnServerRpc()
+    {
+        gameObject.GetComponent<NetworkObject>().Despawn();
+    }
+
     protected void DestroyShip()
     {
+        animator.SetBool("destroy", false);
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+            DespawnServerRpc();
         Destroy(gameObject);
     }
 
