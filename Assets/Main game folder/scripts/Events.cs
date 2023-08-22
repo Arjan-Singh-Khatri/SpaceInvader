@@ -13,4 +13,13 @@ public class Events : MonoBehaviour
     public delegate void HealthCount(int health);
     public static HealthCount healthCount;
     public static Action gameOver;
+    public static Action playerReady;
+    public static Action gamePausedBySomePlayerMulti;
+    public static Action gameUnpausedBySomePlayerMulti;
+    public static Action CallToPauseGameMulti;
+    public static Action CallToUnPauseGameMulti;
+
+    public static Action playerReadyPanelToggleOff;
+    public static Action playerPanelToggleOn;
+
 }

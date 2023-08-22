@@ -147,9 +147,9 @@ GameObject:
   - component: {fileID: 2902715986107336273}
   - component: {fileID: 2902715986107336272}
   - component: {fileID: 2902715986107336275}
+  - component: {fileID: 2902715986107336276}
   - component: {fileID: 2902715986107336278}
   - component: {fileID: 2902715986107336279}
-  - component: {fileID: 2902715986107336276}
   - component: {fileID: 2902715986107336277}
   - component: {fileID: -6450030883135443339}
   - component: {fileID: -8319812764043976997}
@@ -242,6 +242,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39efb07e174465488d6802015d5a875, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &2902715986107336276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2902715986107336274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a99e269f92b72b34697e0db8651f9d7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  missile: {fileID: 2520905092140479226, guid: 0a4b694c8c9f0bd489d208a45014a93e, type: 3}
+  bullet: {fileID: 5857931000029318853, guid: eca02e097f61f074d9845d7c0c94d479, type: 3}
+  fireingPoint: {fileID: 2902715985427187490}
 --- !u!95 &2902715986107336278
 Animator:
   serializedVersion: 5
@@ -288,21 +303,6 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1.16, y: 1.68}
   m_EdgeRadius: 0
---- !u!114 &2902715986107336276
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2902715986107336274}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a99e269f92b72b34697e0db8651f9d7a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  missile: {fileID: 2520905092140479226, guid: 0a4b694c8c9f0bd489d208a45014a93e, type: 3}
-  bullet: {fileID: 5857931000029318853, guid: eca02e097f61f074d9845d7c0c94d479, type: 3}
-  fireingPoint: {fileID: 2902715985427187490}
 --- !u!50 &2902715986107336277
 Rigidbody2D:
   serializedVersion: 4

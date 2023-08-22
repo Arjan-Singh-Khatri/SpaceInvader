@@ -13,7 +13,7 @@ public class EnemyS : Enemy
     private readonly int damageFromBullet = 10;
     private float shootTimer = 3f;
     private bool isDestroyed = false;
-    private Transform shootingPoint;
+    [SerializeField]private Transform shootingPoint;
     [SerializeField]GameObject bulletPrefab;
     [SerializeField] GameObject[] listOfDropItems;
     private Animator animator;
@@ -26,7 +26,7 @@ public class EnemyS : Enemy
     // Start is called before the first frame update
     void Start()
     {
-        shootingPoint = GetComponentInChildren<Transform>();
+
         player = GameObject.FindGameObjectWithTag("Player");
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
@@ -50,7 +50,7 @@ public class EnemyS : Enemy
             Movement(player, speed);
             if (shootTimer <= 0)
             {
-                Shooting(shootingPoint, bulletPrefab);
+                Shooting(ref shootingPoint, bulletPrefab);
                 shootTimer = 3f;
             }
         }
@@ -89,7 +89,8 @@ public class EnemyS : Enemy
     [ServerRpc(RequireOwnership = false)]
     void CallToShootServerRpc()
     {
-        Shooting(shootingPoint, bulletPrefab);
+        if (IsServer)
+            Shooting(ref shootingPoint, bulletPrefab);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {

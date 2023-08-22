@@ -16,7 +16,7 @@ public class EnemyB : Enemy
     private float shootTimer = 2f;
 
     [Header("Shooting")]
-    Transform shootingPoint;
+    [SerializeField]Transform shootingPoint;
     [SerializeField] GameObject bulletPrefab;
 
     [Header("Animation")]
@@ -35,7 +35,7 @@ public class EnemyB : Enemy
     // Start is called before the first frame update
     void Start()
     {
-        shootingPoint = GetComponentInChildren<Transform>();
+
         player = GameObject.FindGameObjectWithTag("Player");
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
@@ -59,7 +59,7 @@ public class EnemyB : Enemy
             Movement(player, speed);
             if (shootTimer <= 0)
             {
-                Shooting(shootingPoint, bulletPrefab);
+                Shooting(ref shootingPoint, bulletPrefab);
                 shootTimer = 2f;
             }
         }
@@ -69,7 +69,8 @@ public class EnemyB : Enemy
             shootTimer -= Time.deltaTime;
             Movement(playerForMultiplayer, speed);
             if (shootTimer <= 0)
-            { 
+            {
+
                 CallToShootServerRpc();
                 shootTimer = 2f;
             }
@@ -95,10 +96,14 @@ public class EnemyB : Enemy
         playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[randomClientID].PlayerObject.gameObject;
     }
 
-    [ServerRpc(RequireOwnership = false)]
+    [ServerRpc]
     void CallToShootServerRpc()
     {
-        Shooting(shootingPoint,bulletPrefab);   
+        if (IsServer)
+        {
+            Shooting(ref shootingPoint, bulletPrefab);
+        }
+
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

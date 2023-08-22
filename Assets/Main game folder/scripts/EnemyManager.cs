@@ -26,7 +26,7 @@ public class EnemyManager : NetworkBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer && GameStateManager.Instance.currentGameState == GameState.allPlayersReady)
         {
             #region IsMUltiplayer And Server
             if (waveNumber == 3)

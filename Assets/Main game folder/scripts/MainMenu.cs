@@ -2,15 +2,17 @@ using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class MainMenu : MonoBehaviour
+public class MainMenu : NetworkBehaviour
 {
     [Header("RandomVariables")]
-    private bool gamePaused = false;
+    private bool LocalGamePaused = false;
 
     [Header("Menu UI")]
     [SerializeField] Button pause;
@@ -26,17 +28,31 @@ public class MainMenu : MonoBehaviour
     [SerializeField] TextMeshProUGUI bulletLeftText;
     [SerializeField] TextMeshProUGUI missileLeftText;
     [SerializeField] Slider healthSlider;
+    [SerializeField] GameObject playerUiPanel;
 
     [Header("Wave Text")]
     [SerializeField] TextMeshProUGUI waveText;
     [SerializeField] Ease ease;
     Vector3 waveTextOgPosition = new Vector3(0,273f, 0);
-    
-    
+
+    [Header("Multiplayer  && Game state State")]
+    [SerializeField] GameObject playerReadyPanel;
+    [SerializeField] Button ready;
+    [SerializeField] TextMeshProUGUI waitingForPlayer;
+    [SerializeField] GameObject multiPlayerPanel;
+    [SerializeField] Button client;
+    [SerializeField] Button host;
+    [SerializeField] GameObject gamePausedBySomePlayerPanel;
+
+
 
     // Start is called before the first frame update
     void Start()
     {
+        Events.playerPanelToggleOn += PlayerPanelToggleOn;
+        Events.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
+        Events.gamePausedBySomePlayerMulti += LocalGamePausedBySomePlayer;
+        Events.gameUnpausedBySomePlayerMulti += LocalGameUnPaused;
         Events.gameOver += GameOverUI;
         Events.waveDelegate += WaveTextMove;
         Events.ammoCount += AmmoCount;
@@ -49,23 +65,91 @@ public class MainMenu : MonoBehaviour
         mainMenuGameOver.onClick.AddListener(GoToMainMenu);
         bulletLeftText.text = "X" + 25.ToString();
         missileLeftText.text ="X" + 6.ToString();
+        ready.onClick.AddListener(() =>
+        {
+            Ready();
+        });
+
+        #region Netcode UI
+
+
+        host.onClick.AddListener(() =>
+        {
+            NetworkManager.StartHost();
+            MultiPlayerPanelToggle();
+            PlayerReadyPanelToggle();
+        });
+
+        client.onClick.AddListener(() =>
+        {
+            NetworkManager.StartClient();
+            MultiPlayerPanelToggle();
+            PlayerReadyPanelToggle();
+        });
+        #endregion
     }
     // Update is called once per frame
     void Update()
     {
         if(Input.GetKeyUp(KeyCode.Escape))
         {
-            if (gamePaused)
+            if (LocalGamePaused)
+            {
                 Resume();
+            }
+
             else
+            {
                 Pause();
-        }   
+            }
+
+        }
+        if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+            multiPlayerPanel.SetActive(false);
+
+        if (!(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)) return;
+        if (!IsOwner) return;
+
+
+    }
+    #region MultiplayerGameStarted
+    void Ready()
+    {
+        //if (!IsOwner) return;
+        ready.gameObject.SetActive(false);
+        Events.playerReady();
     }
 
+    void PlayerReadyPanelToggle()
+    {
+        playerReadyPanel.SetActive(true);   
+    }
+    void PlayerReadyPanelToggleOff()
+    {
+        playerReadyPanel.SetActive(false);
+    }
+
+    void LocalGamePausedBySomePlayer()
+    {
+        gamePausedBySomePlayerPanel.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    void LocalGameUnPaused()
+    {
+        gamePausedBySomePlayerPanel.SetActive(false);
+        Time.timeScale = 1f;
+    }
+    #endregion
+
     #region Menu UI
+    private void MultiPlayerPanelToggle()
+    {
+        multiPlayerPanel.SetActive(false);
+    }
     private void PlayAgain()
     {
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene("SampleScene");
     }
 
     private void GoToMainMenu()
@@ -77,8 +161,9 @@ public class MainMenu : MonoBehaviour
     private void Resume()
     {
         pauseMenuPanel.SetActive(false);
-        gamePaused = false;
+        LocalGamePaused = false;
         Time.timeScale = 1f;
+        Events.CallToUnPauseGameMulti();
     }
 
     private void QuitGame()
@@ -89,14 +174,18 @@ public class MainMenu : MonoBehaviour
     private void Pause()
     {
         pauseMenuPanel.SetActive(true);
-        gamePaused = true;
+        LocalGamePaused = true;
+        Events.CallToPauseGameMulti();
         Time.timeScale = 0f;
+
     }
+
+
 
     private void GameOver()
     {
         gameOverPanel.SetActive(true);
-        gamePaused = true;
+        LocalGamePaused = true;
         Time.timeScale = 0f;
 
     }
@@ -120,6 +209,11 @@ public class MainMenu : MonoBehaviour
     {
         healthSlider.value = health;
         Debug.Log(healthSlider.value);
+    }
+
+    void PlayerPanelToggleOn()
+    {
+        playerUiPanel.SetActive(true);
     }
     #endregion
 
@@ -147,4 +241,5 @@ public class MainMenu : MonoBehaviour
         Events.ammoCount -= AmmoCount;
         Events.healthCount -= HealthSlider;
     }
+
 }

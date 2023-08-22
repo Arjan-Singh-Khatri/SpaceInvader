@@ -30,10 +30,10 @@ public class SpaceShipManager : NetworkBehaviour
         vertical = Input.GetAxis("Vertical");
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
         ShootingManagerFunction();
+ 
 
     }
-
-    
+  
     void HealthManagerFunction()
     {
         playerHealth += 20;
@@ -57,9 +57,17 @@ public class SpaceShipManager : NetworkBehaviour
     {
 
         if (Input.GetKeyDown(KeyCode.Z) && bulletCount > 0)
-            BulletInstantiate();
+        {
+            if(IsOwner)
+                BulletInstantiate();
+        }
+            
         else if (Input.GetKeyDown(KeyCode.X) && missleCount > 0)
-            MissileInstantiate();
+        {
+            if (IsOwner)
+                MissileInstantiate(); 
+        }
+
     }
 
     void BulletInstantiate()

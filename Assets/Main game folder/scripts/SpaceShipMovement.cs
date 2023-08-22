@@ -39,7 +39,6 @@ public class SpaceShipMovement : NetworkBehaviour
             #endregion
 
         }
-        Debug.Log(Time.timeScale);
     }
     void Movement()
     {
@@ -47,7 +46,6 @@ public class SpaceShipMovement : NetworkBehaviour
         vertical = Input.GetAxis("Vertical");
         movementVector.x = horizontal;
         movementVector.y = vertical;
-        Debug.Log(horizontal);
         transform.position += Time.deltaTime * speed * movementVector;
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
         if (movementVector.magnitude < 0.1f)

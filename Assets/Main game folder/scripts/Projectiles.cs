@@ -28,14 +28,15 @@ public class Projectiles : NetworkBehaviour
             transform.position += Time.deltaTime * bulletSpeed * transform.right;
         else if (gameObject.CompareTag("PlayerMissile"))
             transform.position += Time.deltaTime * missileSpeed * transform.right;
-            
+
         else if (gameObject.CompareTag("MissileEnemy"))
-            transform.position += Time.deltaTime * missileSpeed *-transform.right;
+            transform.position += Time.deltaTime * missileSpeed * -transform.right;
 
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        // Donot Destroy if enemy bullet hit enemy and player bullet hit player
         if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") && GameStateManager.Instance.currentGameMode==GameMode.MultiPlayer)
             DespawnServerRpc();
 

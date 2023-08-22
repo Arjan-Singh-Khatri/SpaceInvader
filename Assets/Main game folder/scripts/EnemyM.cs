@@ -13,7 +13,7 @@ public class EnemyM : Enemy
     private readonly int damageFromBullet = 10;
     private float shootTimer = 4f;
 
-    private Transform shootingPoint;
+    [SerializeField]private Transform shootingPoint;
     [SerializeField] GameObject missilePrefab;
     private bool isDestroyed = false;
 
@@ -28,7 +28,7 @@ public class EnemyM : Enemy
     // Start is called before the first frame update
     void Start()
     {
-        shootingPoint = GetComponentInChildren<Transform>();
+
         player = GameObject.FindGameObjectWithTag("Player");
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
@@ -53,7 +53,7 @@ public class EnemyM : Enemy
             Movement(player, speed);
             if (shootTimer <= 0)
             {
-                Shooting(shootingPoint, missilePrefab);
+                Shooting(ref shootingPoint, missilePrefab);
                 shootTimer = 4f;
             }
         }
@@ -93,7 +93,8 @@ public class EnemyM : Enemy
     [ServerRpc(RequireOwnership = false)]
     void CallToShootServerRpc()
     {
-        Shooting(shootingPoint, missilePrefab);
+        if (IsServer)
+            Shooting(ref shootingPoint, missilePrefab);
     }
 
 
