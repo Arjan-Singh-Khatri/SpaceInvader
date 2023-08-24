@@ -27,6 +27,7 @@ public class MainMenuButtons : MonoBehaviour
     void Play()
     {
         SceneManager.LoadScene("SampleScene");
+        GameStateManager.Instance.currentGameMode = GameMode.singlePlayer;
     }
     void Quit()
     {

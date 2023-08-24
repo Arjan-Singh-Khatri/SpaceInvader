@@ -15,16 +15,36 @@ public class MultiplayerManager : NetworkBehaviour
         Events.CallToUnPauseGameMulti += CallRpcToUnPauseGame;
     }
 
+    public override void OnNetworkSpawn()
+    {
+        if(IsServer)
+        {
+            NetworkManager.Singleton.OnClientDisconnectCallback += PlayerDisconnect;
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
         
     }
+
+    #region Disconnect Handel 
+    void PlayerDisconnect(ulong clientID)
+    {
+
+    }
+
+    
+    #endregion
+
+    #region Ready and Pause
     void callPlayerReadyRpc()
     {
         LocalPlayerReadyServerRpc();
         Debug.Log("CAlled");
     }
+
     [ServerRpc(RequireOwnership = false)]
     void LocalPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
@@ -56,6 +76,7 @@ public class MultiplayerManager : NetworkBehaviour
     {
         Events.playerReadyPanelToggleOff();
         Events.playerPanelToggleOn();
+        GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
     }
 
     // Functions to call ServerRpc via Events
@@ -138,4 +159,5 @@ public class MultiplayerManager : NetworkBehaviour
     {
         Events.gameUnpausedBySomePlayerMulti();
     }
+    #endregion
 }

@@ -65,6 +65,11 @@ public class EnemyB : Enemy
         }
         else
         {
+            if (SpaceShipManager.spaceShipDestroyed)
+            {
+                CallServerToGetClientListServerRpc();
+                SpaceShipManager.spaceShipDestroyed = false;
+            }
             if (!IsOwner) return;
             shootTimer -= Time.deltaTime;
             Movement(playerForMultiplayer, speed);

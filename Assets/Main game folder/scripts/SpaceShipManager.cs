@@ -22,6 +22,7 @@ public class SpaceShipManager : NetworkBehaviour
     int damageTakenFromBullet = 9;
     int damageTakeFromCollision = 5;
     float angleForRotation;
+    public static bool spaceShipDestroyed = false;
 
     // Update is called once per frame
     void Update()
@@ -47,7 +48,9 @@ public class SpaceShipManager : NetworkBehaviour
         playerHealth -= Damage;
         if(playerHealth < 0)
         {
-            Events.gameOver();
+            spaceShipDestroyed = true;
+            if(IsOwner)
+                Events.gameOver();
             Destroy(gameObject);
         }
         Events.healthCount(playerHealth);

@@ -75,16 +75,20 @@ public class MainMenu : NetworkBehaviour
 
         host.onClick.AddListener(() =>
         {
+            GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
             NetworkManager.StartHost();
             MultiPlayerPanelToggle();
             PlayerReadyPanelToggle();
+
         });
 
         client.onClick.AddListener(() =>
         {
+            GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
             NetworkManager.StartClient();
             MultiPlayerPanelToggle();
             PlayerReadyPanelToggle();
+
         });
         #endregion
     }
@@ -201,8 +205,20 @@ public class MainMenu : NetworkBehaviour
 
     void GameOverUI()
     {
-        gameOverPanel.SetActive(true);
-        Time.timeScale = 0f;
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            if (IsOwner) 
+            {
+                gameOverPanel.SetActive(true);
+            }
+            
+        }
+        else
+        {
+            gameOverPanel.SetActive(true);
+            Time.timeScale = 0f;
+        }
+
     }
 
     void HealthSlider(int health)
