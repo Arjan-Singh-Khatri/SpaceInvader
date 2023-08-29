@@ -21,5 +21,6 @@ public class Events : MonoBehaviour
 
     public static Action playerReadyPanelToggleOff;
     public static Action playerPanelToggleOn;
+    public static Action playerShipDestroy;
 
 }

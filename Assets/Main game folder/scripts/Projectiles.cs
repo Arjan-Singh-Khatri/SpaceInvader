@@ -11,17 +11,19 @@ public class Projectiles : NetworkBehaviour
     //private Quaternion quaternionForRotation;
     private float destroyTimer = 3f;
 
-    private void Start()
-    {
-        //quaternionForRotation = this.transform.parent.rotation;
-        //this.transform.parent = null;
-        //transform.rotation = quaternionForRotation;
-    }
+
     // Update is called once per frame
     void Update()
     {
         destroyTimer -= Time.deltaTime;
-        if (destroyTimer <= 0) Destroy(gameObject);
+        if (destroyTimer <= 0) 
+        {
+            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+                DespawnServerRpc();
+            else
+                Destroy(gameObject);
+        }
+
         if (gameObject.CompareTag("GunEnemy"))
             transform.position += Time.deltaTime * bulletSpeed * -transform.right;
         else if (gameObject.CompareTag("PlayerBullet"))

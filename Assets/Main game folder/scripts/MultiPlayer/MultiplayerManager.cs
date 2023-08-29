@@ -13,15 +13,9 @@ public class MultiplayerManager : NetworkBehaviour
         Events.playerReady += callPlayerReadyRpc;
         Events.CallToPauseGameMulti += CallRpcToPauseGame;
         Events.CallToUnPauseGameMulti += CallRpcToUnPauseGame;
+        //Events.playerDeath += CallPlayerDeath;
     }
 
-    public override void OnNetworkSpawn()
-    {
-        if(IsServer)
-        {
-            NetworkManager.Singleton.OnClientDisconnectCallback += PlayerDisconnect;
-        }
-    }
 
     // Update is called once per frame
     void Update()
@@ -29,11 +23,8 @@ public class MultiplayerManager : NetworkBehaviour
         
     }
 
-    #region Disconnect Handel 
-    void PlayerDisconnect(ulong clientID)
-    {
-
-    }
+    #region Disconnect Handel and Player Death Online
+    //Disconnect handling
 
     
     #endregion

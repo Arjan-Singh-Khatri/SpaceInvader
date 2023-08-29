@@ -27,11 +27,12 @@ public class EnemyB : Enemy
 
 
     [Header("Drop")]
-    [SerializeField] GameObject[] listOfDropItems;
+    [SerializeField]private GameObject[] listOfDropItems;
 
     [Header("Multiplayer")]
-    GameObject playerForMultiplayer;
-    ulong randomClientID;
+    private GameObject playerForMultiplayer;
+    private bool isFirst = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -65,13 +66,15 @@ public class EnemyB : Enemy
         }
         else
         {
-            if (SpaceShipManager.spaceShipDestroyed)
-            {
-                CallServerToGetClientListServerRpc();
-                SpaceShipManager.spaceShipDestroyed = false;
-            }
+            
             if (!IsOwner) return;
             shootTimer -= Time.deltaTime;
+            if (playerForMultiplayer == null)
+            {
+                Debug.Log("A");
+                CallServerToGetClientListServerRpc();
+            }
+
             Movement(playerForMultiplayer, speed);
             if (shootTimer <= 0)
             {
@@ -80,25 +83,40 @@ public class EnemyB : Enemy
                 shootTimer = 2f;
             }
         }
+        
         ShipDestroy();
     }
     [ServerRpc(RequireOwnership =false)]
     void CallServerToGetClientListServerRpc()
     {
-        GetClientListClientRpc((ulong)Random.Range(0, NetworkManager.Singleton.ConnectedClientsIds.Count));
+        GetClientListClientRpc();
     }
 
     [ClientRpc]
-    void GetClientListClientRpc(ulong randomClientID)
+    void GetClientListClientRpc()
     {
-        AssignMultiplayerPlayerObject(randomClientID);
+        AssignMultiplayerPlayerObject();
     }
 
-    void AssignMultiplayerPlayerObject(ulong randomClientID)
+    void AssignMultiplayerPlayerObject()
     {
-        randomClientID = (ulong)Random.Range(0, NetworkManager.Singleton.ConnectedClientsIds.Count);
+        var randomClientID = Random.Range(0,NetworkManager.Singleton.ConnectedClientsList.Count);
+        if (isFirst)
+        {
+            playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+            isFirst = false;
+        }
 
-        playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[randomClientID].PlayerObject.gameObject;
+        else
+        {
+            while (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
+            {
+                randomClientID =Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
+            }
+
+            playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+        }
+
     }
 
     [ServerRpc]

@@ -25,14 +25,13 @@ public class Enemy : NetworkBehaviour
 
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-
             GameObject instantiatedGameobject = Instantiate(bulletPrefab, shootingPoint.position, transform.rotation);
             instantiatedGameobject.GetComponent<NetworkObject>().Spawn(true);
             
         }
         else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
-            Debug.Log("Heyy");
+            
             GameObject instantiatedGameobject = Instantiate(bulletPrefab, shootingPoint.position, transform.rotation);
         }
 

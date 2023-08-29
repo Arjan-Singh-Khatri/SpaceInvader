@@ -7,7 +7,7 @@ using UnityEngine;
 public class SpaceShipManager : NetworkBehaviour
 {
     [Header("Basic Components")]
-    private int playerHealth = 50;
+    private int playerHealth = 5;
     private float horizontal;
     private float vertical;
 
@@ -22,9 +22,7 @@ public class SpaceShipManager : NetworkBehaviour
     int damageTakenFromBullet = 9;
     int damageTakeFromCollision = 5;
     float angleForRotation;
-    public static bool spaceShipDestroyed = false;
 
-    // Update is called once per frame
     void Update()
     {
         horizontal = Input.GetAxis("Horizontal");
@@ -48,12 +46,37 @@ public class SpaceShipManager : NetworkBehaviour
         playerHealth -= Damage;
         if(playerHealth < 0)
         {
-            spaceShipDestroyed = true;
-            if(IsOwner)
+            playerHealth = 0;
+            if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+            {
+                CallDespwan();
                 Events.gameOver();
-            Destroy(gameObject);
+            }
+
+            else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+            {
+                Events.gameOver();
+                Destroy(gameObject);
+            }
+
         }
         Events.healthCount(playerHealth);
+    }
+    void CallDespwan()
+    {
+        DesapwnServerRpc((uint)OwnerClientId);
+    }
+    [ServerRpc(RequireOwnership =false)]
+    void DesapwnServerRpc(uint clientId)
+    {
+        if(clientId == (uint)NetworkManager.ServerClientId)
+        {
+            NetworkManager.Singleton.Shutdown();
+            //UI - Game Over UI GAME OVER ! event
+
+
+        }
+        gameObject.GetComponent<NetworkObject>().Despawn();
     }
 
     void ShootingManagerFunction()
@@ -80,12 +103,18 @@ public class SpaceShipManager : NetworkBehaviour
         {
             Instantiate(bullet, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward));
             bulletCount -= 1;
+            if(bulletCount < 0)
+            {
+                bulletCount = 0;
+            }
             Events.ammoCount(bulletCount, missleCount);
         }else
         {
 
             BulletSpawnServerRpc();
             bulletCount -= 1;
+            if (bulletCount < 0)
+                bulletCount = 0;
             Events.ammoCount(bulletCount, missleCount);
         }
 
@@ -110,14 +139,17 @@ public class SpaceShipManager : NetworkBehaviour
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             Instantiate(missile, fireingPoint.position, Quaternion.AngleAxis(angleForRotation, Vector3.forward));
-            bulletCount -= 1;
+            missleCount -= 1;
+            if(missleCount < 0)
+                missleCount = 0;
             Events.ammoCount(bulletCount, missleCount);
         }
         else
         {
-
+            missleCount -= 1;
+            if (missleCount < 0)
+                missleCount = 0;
             MissileSpawnServerRpc();
-            bulletCount -= 1;
             Events.ammoCount(bulletCount, missleCount);
         }
     }
