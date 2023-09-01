@@ -35,11 +35,25 @@ public class SpaceShipManager : NetworkBehaviour
   
     void HealthManagerFunction()
     {
-        playerHealth += 20;
-        if (playerHealth > 100)
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            playerHealth = 100;
+            if (!IsOwner) return;
+            playerHealth += 20;
+            if (playerHealth > 100)
+            {
+                playerHealth = 100;
+            }
+
         }
+        else
+        {
+            playerHealth += 20;
+            if (playerHealth > 100)
+            {
+                playerHealth = 100;
+            }
+        }
+
     }
     void TakeDamage(int Damage)
     {
@@ -50,17 +64,19 @@ public class SpaceShipManager : NetworkBehaviour
             if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
             {
                 CallDespwan();
-                Events.gameOver();
+                Events.playerDeath();
             }
 
             else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
             {
                 Events.gameOver();
                 Destroy(gameObject);
+                
             }
-
         }
+        if (!IsOwner) return;
         Events.healthCount(playerHealth);
+
     }
     void CallDespwan()
     {
@@ -72,8 +88,6 @@ public class SpaceShipManager : NetworkBehaviour
         if(clientId == (uint)NetworkManager.ServerClientId)
         {
             NetworkManager.Singleton.Shutdown();
-            //UI - Game Over UI GAME OVER ! event
-
 
         }
         gameObject.GetComponent<NetworkObject>().Despawn();

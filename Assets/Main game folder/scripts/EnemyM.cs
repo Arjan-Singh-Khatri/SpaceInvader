@@ -47,6 +47,7 @@ public class EnemyM : Enemy
     void Update()
     {
         if (isDestroyed) return;
+        if (GameStateManager.Instance.currentGameState == GameState.gamePaused) return;
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             shootTimer -= Time.deltaTime;
@@ -100,12 +101,13 @@ public class EnemyM : Enemy
         }
         else
         {
-            while (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsIds)
             {
-                randomClientID = Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
+                if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject == null)
+                    continue;
+                else
+                    playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[client].PlayerObject.gameObject;
             }
-
-            playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
         }
 
     }

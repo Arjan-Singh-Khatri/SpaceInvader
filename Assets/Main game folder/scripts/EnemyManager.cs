@@ -28,6 +28,8 @@ public class EnemyManager : NetworkBehaviour
     {
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer && GameStateManager.Instance.currentGameState == GameState.allPlayersReady)
         {
+            if (GameStateManager.Instance.currentGamePhase == GamePhase.allPlayersDead)
+                return;
             #region IsMUltiplayer And Server
             if (waveNumber == 3)
             {
@@ -117,6 +119,7 @@ public class EnemyManager : NetworkBehaviour
         }
          
     }
+
 
     #region New
     bool CheckIfEnemyleft()

@@ -44,7 +44,16 @@ public class MainMenu : NetworkBehaviour
     [SerializeField] Button host;
     [SerializeField] GameObject gamePausedBySomePlayerPanel;
 
+    [Header("Disconnect && Multiplayer Player Death")]
+    [SerializeField] GameObject playerDeadUiMultiplayer;
+    [SerializeField] Button keepWatching;
+    [SerializeField] Button mainMenuPlayerDeath;
+    [SerializeField] GameObject allPlayerDeadPanel;
+    [SerializeField] Button allPlayerDeadMenu;
 
+    [SerializeField] GameObject hostDisconnectUI;
+    [SerializeField] Button hostDisconnectMenu;
+    
 
     // Start is called before the first frame update
     void Start()
@@ -54,9 +63,13 @@ public class MainMenu : NetworkBehaviour
         Events.gamePausedBySomePlayerMulti += LocalGamePausedBySomePlayer;
         Events.gameUnpausedBySomePlayerMulti += LocalGameUnPaused;
         Events.gameOver += GameOverUI;
-        Events.waveDelegate += WaveTextMove;
         Events.ammoCount += AmmoCount;
         Events.healthCount += HealthSlider;
+        Events.allPlayerDeadUI += AllPlayerDeadUi;
+        Events.playerDeathUI += PlayerDeadUi;
+        Events.hostDisconnect += HostDisconnectUi;
+        hostDisconnectMenu.onClick.AddListener(GoToMainMenu);
+        allPlayerDeadMenu.onClick.AddListener(GoToMainMenu);
         pause.onClick.AddListener(Pause);
         resume.onClick.AddListener(Resume);
         mainMenu.onClick.AddListener(GoToMainMenu);
@@ -65,6 +78,7 @@ public class MainMenu : NetworkBehaviour
         mainMenuGameOver.onClick.AddListener(GoToMainMenu);
         bulletLeftText.text = "X" + 25.ToString();
         missileLeftText.text ="X" + 6.ToString();
+        mainMenuPlayerDeath.onClick.AddListener(GoToMainMenu);
         ready.onClick.AddListener(() =>
         {
             Ready();
@@ -116,6 +130,36 @@ public class MainMenu : NetworkBehaviour
 
 
     }
+
+    #region Player Death and Disconnect 
+
+    void HostDisconnectUi()
+    {
+        playerDeadUiMultiplayer.SetActive(false);
+        allPlayerDeadPanel.SetActive(false);
+        hostDisconnectUI.SetActive(true);
+    }
+
+    void PlayerDeadUi()
+    {
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+            playerDeadUiMultiplayer.SetActive(true);
+
+    }
+    void KeepWatching()
+    {
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+            playerDeadUiMultiplayer.SetActive(false);
+    }
+
+    void AllPlayerDeadUi()
+    {
+        playerDeadUiMultiplayer.SetActive(false);
+        allPlayerDeadPanel.SetActive(true);
+    }
+
+    #endregion
+
     #region MultiplayerGameStarted
     void Ready()
     {
@@ -136,13 +180,13 @@ public class MainMenu : NetworkBehaviour
     void LocalGamePausedBySomePlayer()
     {
         gamePausedBySomePlayerPanel.SetActive(true);
-        Time.timeScale = 0f;
+
     }
 
     void LocalGameUnPaused()
     {
         gamePausedBySomePlayerPanel.SetActive(false);
-        Time.timeScale = 1f;
+
     }
     #endregion
 
@@ -158,8 +202,12 @@ public class MainMenu : NetworkBehaviour
 
     private void GoToMainMenu()
     {
-        SceneManager.LoadScene("MainMenu");
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
         Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 
     private void Resume()
@@ -188,9 +236,12 @@ public class MainMenu : NetworkBehaviour
 
     private void GameOver()
     {
-        gameOverPanel.SetActive(true);
-        LocalGamePaused = true;
-        Time.timeScale = 0f;
+        if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            gameOverPanel.SetActive(true);
+            LocalGamePaused = true;
+            Time.timeScale = 0f;
+        }
 
     }
     #endregion

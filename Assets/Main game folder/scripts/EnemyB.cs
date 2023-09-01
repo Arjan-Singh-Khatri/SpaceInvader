@@ -54,7 +54,8 @@ public class EnemyB : Enemy
     void Update()
     {
         if (isDestroyed) return;
-        if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        if (GameStateManager.Instance.currentGameState == GameState.gamePaused) return;
+        if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             shootTimer -= Time.deltaTime;
             Movement(player, speed);
@@ -69,9 +70,9 @@ public class EnemyB : Enemy
             
             if (!IsOwner) return;
             shootTimer -= Time.deltaTime;
-            if (playerForMultiplayer == null)
+            if (playerForMultiplayer == null )
             {
-                Debug.Log("A");
+                
                 CallServerToGetClientListServerRpc();
             }
 
@@ -109,12 +110,19 @@ public class EnemyB : Enemy
 
         else
         {
-            while (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
+            //while (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
+            //{
+            //    randomClientID =Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
+            //}
+            foreach(var client in NetworkManager.Singleton.ConnectedClientsIds)
             {
-                randomClientID =Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
+                if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject == null)
+                    continue;
+                else
+                    playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
             }
 
-            playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+            
         }
 
     }

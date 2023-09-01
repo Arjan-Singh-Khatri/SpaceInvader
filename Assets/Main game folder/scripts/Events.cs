@@ -21,6 +21,9 @@ public class Events : MonoBehaviour
 
     public static Action playerReadyPanelToggleOff;
     public static Action playerPanelToggleOn;
-    public static Action playerShipDestroy;
+    public static Action playerDeath;
+    public static Action playerDeathUI;
+    public static Action allPlayerDeadUI;
+    public static Action hostDisconnect;
 
 }

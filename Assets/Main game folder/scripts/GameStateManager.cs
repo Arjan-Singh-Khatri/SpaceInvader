@@ -7,6 +7,7 @@ public class GameStateManager : MonoBehaviour
     public static GameStateManager Instance;
     public GameMode currentGameMode = GameMode.singlePlayer;
     public GameState currentGameState = GameState.waitingForPlayers;
+    public GamePhase currentGamePhase = GamePhase.normal;
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -31,5 +32,14 @@ public enum GameMode{
 public enum GameState
 {
     waitingForPlayers,
-    allPlayersReady
+    allPlayersReady,
+    gamePaused
 }
+
+public enum GamePhase 
+{
+    allPlayersDead,
+    boss,
+    normal
+}
+
