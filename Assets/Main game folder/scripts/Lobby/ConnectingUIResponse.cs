@@ -12,11 +12,12 @@ public class ConnectingUIResponse : MonoBehaviour
 
     private void Start()
     {
-        HostAndClientLogic.instance.onFailedToJoinGame += HostAndClient_onFailedToJoinGame;
+        MultiplayerManager.instance.onFailedToJoinGame += HostAndClient_onFailedToJoinGame;
         close.onClick.AddListener(() =>
         {
             Hide();
         });
+        Hide();
     }
 
     private void HostAndClient_onFailedToJoinGame(object sender, System.EventArgs e)
@@ -37,4 +38,6 @@ public class ConnectingUIResponse : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
+
+
 }

@@ -8,8 +8,8 @@ public class ConnectingUI : MonoBehaviour
 
     private void Start()
     {
-        HostAndClientLogic.instance.onTryingToJoinGame += HostAndClient_onTryingToJoinGame;
-        HostAndClientLogic.instance.onFailedToJoinGame += HostAndClient_onFailedToJoinGame;
+        MultiplayerManager.instance.onTryingToJoinGame += HostAndClient_onTryingToJoinGame;
+        MultiplayerManager.instance.onFailedToJoinGame += HostAndClient_onFailedToJoinGame;
 
         Hide();
     }
@@ -33,4 +33,6 @@ public class ConnectingUI : MonoBehaviour
     {
         gameObject.SetActive(false);    
     }
+
+
 }

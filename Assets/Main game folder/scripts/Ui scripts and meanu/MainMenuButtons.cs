@@ -42,6 +42,6 @@ public class MainMenuButtons : MonoBehaviour
     void MultiplayerSelected()
     {
         GameStateManager.Instance.currentGameMode = GameMode.MultiPlayer;
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("Lobby");
     }
 }

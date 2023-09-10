@@ -3,20 +3,29 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class MultiplayerManager : NetworkBehaviour
 {
+    public int MAX_PLAYER_COUNT = 2;
+    public static MultiplayerManager instance;
 
     Dictionary<ulong, bool> playerPauseDictionary;
     Dictionary<ulong, bool> playerDeathDictionary;
 
     [SerializeField] private Transform playerPrefab;
 
+    public event EventHandler onTryingToJoinGame;
+    public event EventHandler onFailedToJoinGame;
+
     private void Awake()
     {
+        instance = this;
 
         playerPauseDictionary = new Dictionary<ulong, bool>();
         playerDeathDictionary = new Dictionary<ulong, bool>();
+
+        DontDestroyOnLoad(gameObject);
     }
     // Start is called before the first frame update
     void Start()
@@ -28,6 +37,7 @@ public class MultiplayerManager : NetworkBehaviour
         Events.instance.waveDelegate += CallWaveUIRpc;
 
     }
+
 
     public override void OnNetworkSpawn()
     {
@@ -41,13 +51,55 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-        {
-            Transform instantiatedObject = Instantiate(playerPrefab);
-            instantiatedObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId,true);
-        }
+        //foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        //{
+        //    Transform instantiatedObject = Instantiate(playerPrefab);
+        //    instantiatedObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId,true);
+        //}
+        Debug.Log("Scene Name : " + sceneName);
     }
 
+    #region Late join
+
+    public void StartTheHost()
+    {
+        NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManagr_ConnectionApprovalCallBack;
+        NetworkManager.StartHost();
+    }
+
+    private void NetworkManagr_ConnectionApprovalCallBack(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
+    {
+        if (SceneManager.GetActiveScene().name != "CharacterSelect")
+        {
+            connectionApprovalResponse.Approved = false;
+            connectionApprovalResponse.Reason = "Game Already Started ";
+            return;
+        }
+        if (NetworkManager.ConnectedClientsList.Count >= MAX_PLAYER_COUNT)
+        {
+            connectionApprovalResponse.Approved = false;
+            connectionApprovalResponse.Reason = "Game Is Full";
+            return;
+        }
+
+        connectionApprovalResponse.Approved = true;
+
+
+    }
+
+    public void StartClient()
+    {
+        onTryingToJoinGame?.Invoke(this, EventArgs.Empty);
+
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        NetworkManager.StartClient();
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientID)
+    {
+        onFailedToJoinGame?.Invoke(this, EventArgs.Empty);
+    }
+    #endregion
 
     #region Wave
 
@@ -225,5 +277,13 @@ public class MultiplayerManager : NetworkBehaviour
     }
     #endregion
 
-   
+
+    private void OnDestroy()
+    {
+        Events.instance.CallToPauseGameMulti -= CallRpcToPauseGame;
+        Events.instance.CallToUnPauseGameMulti -= CallRpcToUnPauseGame;
+        Events.instance.playerDeath -= PlayerDeathRpcCall;
+        Events.instance.waveDelegate -= CallWaveUIRpc;
+    }
+
 }

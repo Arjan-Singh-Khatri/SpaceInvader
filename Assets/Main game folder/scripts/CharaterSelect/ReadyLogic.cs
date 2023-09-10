@@ -2,14 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class ReadyLogic : NetworkBehaviour
 {
     public static ReadyLogic instance;
+    
 
     Dictionary<ulong, bool> playerReadyDictionary;
+    private void Start()
+    {
+        instance = this;
+    }
 
     public void CallPlayerReadyRpc()
     {

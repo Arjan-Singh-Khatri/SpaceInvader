@@ -14,13 +14,13 @@ public class UI : NetworkBehaviour
     {
         startGame.onClick.AddListener(() =>
         {
-            HostAndClientLogic.instance.StartHost();
+            MultiplayerManager.instance.StartTheHost();
             NetworkManager.SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
         });
 
         joinGame.onClick.AddListener(() =>
         {
-            HostAndClientLogic.instance.StartClient();
+            MultiplayerManager.instance.StartClient();
         });
     }
 }
