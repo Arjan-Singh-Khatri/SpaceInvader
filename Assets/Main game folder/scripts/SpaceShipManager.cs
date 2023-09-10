@@ -64,18 +64,18 @@ public class SpaceShipManager : NetworkBehaviour
             if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
             {
                 CallDespwan();
-                Events.playerDeath();
+                Events.instance.playerDeath();
             }
 
             else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
             {
-                Events.gameOver();
+                Events.instance.gameOver();
                 Destroy(gameObject);
                 
             }
         }
         if (!IsOwner) return;
-        Events.healthCount(playerHealth);
+        Events.instance.healthCount(playerHealth);
 
     }
     void CallDespwan()
@@ -121,7 +121,7 @@ public class SpaceShipManager : NetworkBehaviour
             {
                 bulletCount = 0;
             }
-            Events.ammoCount(bulletCount, missleCount);
+            Events.instance.ammoCount(bulletCount, missleCount);
         }else
         {
 
@@ -129,7 +129,7 @@ public class SpaceShipManager : NetworkBehaviour
             bulletCount -= 1;
             if (bulletCount < 0)
                 bulletCount = 0;
-            Events.ammoCount(bulletCount, missleCount);
+            Events.instance.ammoCount(bulletCount, missleCount);
         }
 
     }
@@ -156,7 +156,7 @@ public class SpaceShipManager : NetworkBehaviour
             missleCount -= 1;
             if(missleCount < 0)
                 missleCount = 0;
-            Events.ammoCount(bulletCount, missleCount);
+            Events.instance.ammoCount(bulletCount, missleCount);
         }
         else
         {
@@ -164,7 +164,7 @@ public class SpaceShipManager : NetworkBehaviour
             if (missleCount < 0)
                 missleCount = 0;
             MissileSpawnServerRpc();
-            Events.ammoCount(bulletCount, missleCount);
+            Events.instance.ammoCount(bulletCount, missleCount);
         }
     }
 
@@ -175,14 +175,14 @@ public class SpaceShipManager : NetworkBehaviour
         if (collision.gameObject.CompareTag("DropBullet"))
         {
             bulletCount += 10;
-            Events.ammoCount(bulletCount, missleCount);
+            Events.instance.ammoCount(bulletCount, missleCount);
             Destroy(collision.gameObject);
         }
 
         if (collision.gameObject.CompareTag("DropMissile"))
         {
             missleCount += 5;
-            Events.ammoCount(bulletCount, missleCount);
+            Events.instance.ammoCount(bulletCount, missleCount);
             Destroy(collision.gameObject);
         }
 

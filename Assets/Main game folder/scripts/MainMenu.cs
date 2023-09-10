@@ -58,16 +58,18 @@ public class MainMenu : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Events.playerPanelToggleOn += PlayerPanelToggleOn;
-        Events.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
-        Events.gamePausedBySomePlayerMulti += LocalGamePausedBySomePlayer;
-        Events.gameUnpausedBySomePlayerMulti += LocalGameUnPaused;
-        Events.gameOver += GameOverUI;
-        Events.ammoCount += AmmoCount;
-        Events.healthCount += HealthSlider;
-        Events.allPlayerDeadUI += AllPlayerDeadUi;
-        Events.playerDeathUI += PlayerDeadUi;
-        Events.hostDisconnect += HostDisconnectUi;
+        #region events
+
+        Events.instance.playerPanelToggleOn += PlayerPanelToggleOn;
+        Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
+        Events.instance.gamePausedBySomePlayerMulti += LocalGamePausedBySomePlayer;
+        Events.instance.gameUnpausedBySomePlayerMulti += LocalGameUnPaused;
+        Events.instance.gameOver += GameOverUI;
+        Events.instance.ammoCount += AmmoCount;
+        Events.instance.healthCount += HealthSlider;
+        Events.instance.allPlayerDeadUI += AllPlayerDeadUi;
+        Events.instance.playerDeathUI += PlayerDeadUi;
+        Events.instance.hostDisconnect += HostDisconnectUi;
         hostDisconnectMenu.onClick.AddListener(GoToMainMenu);
         allPlayerDeadMenu.onClick.AddListener(GoToMainMenu);
         pause.onClick.AddListener(Pause);
@@ -83,6 +85,7 @@ public class MainMenu : NetworkBehaviour
         {
             Ready();
         });
+        #endregion
 
         #region Netcode UI
 
@@ -90,7 +93,7 @@ public class MainMenu : NetworkBehaviour
         host.onClick.AddListener(() =>
         {
             GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
-            NetworkManager.StartHost();
+            Events.instance.Host();
             MultiPlayerPanelToggle();
             PlayerReadyPanelToggle();
 
@@ -99,13 +102,14 @@ public class MainMenu : NetworkBehaviour
         client.onClick.AddListener(() =>
         {
             GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
-            NetworkManager.StartClient();
+            Events.instance.client();
             MultiPlayerPanelToggle();
             PlayerReadyPanelToggle();
 
         });
         #endregion
     }
+    
     // Update is called once per frame
     void Update()
     {
@@ -165,7 +169,7 @@ public class MainMenu : NetworkBehaviour
     {
         //if (!IsOwner) return;
         ready.gameObject.SetActive(false);
-        Events.playerReady();
+        Events.instance.playerReady();
     }
 
     void PlayerReadyPanelToggle()
@@ -179,12 +183,14 @@ public class MainMenu : NetworkBehaviour
 
     void LocalGamePausedBySomePlayer()
     {
+
         gamePausedBySomePlayerPanel.SetActive(true);
 
     }
 
     void LocalGameUnPaused()
     {
+
         gamePausedBySomePlayerPanel.SetActive(false);
 
     }
@@ -214,8 +220,10 @@ public class MainMenu : NetworkBehaviour
     {
         pauseMenuPanel.SetActive(false);
         LocalGamePaused = false;
+
+        if(GameStateManager.Instance.currentGameMode== GameMode.MultiPlayer && IsOwner)
+            Events.instance.CallToUnPauseGameMulti();
         Time.timeScale = 1f;
-        Events.CallToUnPauseGameMulti();
     }
 
     private void QuitGame()
@@ -227,7 +235,8 @@ public class MainMenu : NetworkBehaviour
     {
         pauseMenuPanel.SetActive(true);
         LocalGamePaused = true;
-        Events.CallToPauseGameMulti();
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+            Events.instance.CallToPauseGameMulti();
         Time.timeScale = 0f;
 
     }
@@ -303,10 +312,10 @@ public class MainMenu : NetworkBehaviour
 
     private void OnDisable()
     {
-        Events.gameOver -= GameOverUI;
-        Events.waveDelegate -= WaveTextMove;
-        Events.ammoCount -= AmmoCount;
-        Events.healthCount -= HealthSlider;
+        Events.instance.gameOver -= GameOverUI;
+        Events.instance.waveDelegate -= WaveTextMove;
+        Events.instance.ammoCount -= AmmoCount;
+        Events.instance.healthCount -= HealthSlider;
     }
 
 }

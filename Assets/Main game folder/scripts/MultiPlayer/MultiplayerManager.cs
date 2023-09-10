@@ -6,25 +6,45 @@ using UnityEngine;
 
 public class MultiplayerManager : NetworkBehaviour
 {
-    Dictionary<ulong, bool> playerReadyDictionary = new();
-    Dictionary<ulong, bool> playerPauseDictionary = new();
-    Dictionary<ulong, bool> playerDeathDictionary = new();
-    private bool autoPauseUpdate = false;
+
+    Dictionary<ulong, bool> playerPauseDictionary;
+    Dictionary<ulong, bool> playerDeathDictionary;
+
+    [SerializeField] private Transform playerPrefab;
+
+    private void Awake()
+    {
+
+        playerPauseDictionary = new Dictionary<ulong, bool>();
+        playerDeathDictionary = new Dictionary<ulong, bool>();
+    }
     // Start is called before the first frame update
     void Start()
     {
-        Events.playerReady += CallPlayerReadyRpc;
-        Events.CallToPauseGameMulti += CallRpcToPauseGame;
-        Events.CallToUnPauseGameMulti += CallRpcToUnPauseGame;
-        Events.playerDeath += PlayerDeathRpcCall;
-        Events.waveDelegate += CallWaveUIRpc;
+
+        Events.instance.CallToPauseGameMulti += CallRpcToPauseGame;
+        Events.instance.CallToUnPauseGameMulti += CallRpcToUnPauseGame;
+        Events.instance.playerDeath += PlayerDeathRpcCall;
+        Events.instance.waveDelegate += CallWaveUIRpc;
+
     }
 
     public override void OnNetworkSpawn()
     {
+        //
         if (IsServer)
         {
             NetworkManager.Singleton.OnClientDisconnectCallback += On_Disconnect_Local_Player;
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+        }
+    }
+
+    private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
+    {
+        foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            Transform instantiatedObject = Instantiate(playerPrefab);
+            instantiatedObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId,true);
         }
     }
 
@@ -45,7 +65,7 @@ public class MultiplayerManager : NetworkBehaviour
     [ClientRpc]
     void WaveUIClientRpc(int waveNumber,ClientRpcParams clientRpcParams)
     {
-        Events.waveDelegate(waveNumber);
+        Events.instance.waveDelegate(waveNumber);
     }
     #endregion
 
@@ -73,7 +93,7 @@ public class MultiplayerManager : NetworkBehaviour
     [ClientRpc]
     void HostDisconnectClientRpc(ClientRpcParams clientRpcParams)
     {
-        Events.hostDisconnect();
+        Events.instance.hostDisconnect();
     }
 
     //Player Death Handling
@@ -106,7 +126,7 @@ public class MultiplayerManager : NetworkBehaviour
     void AllPlayerDeathClientRpc(ClientRpcParams clientRpcParams)
     {
         // Event That activates All PlayerDead Ui - Host Stop - all TimeScale = 0 
-        Events.allPlayerDeadUI();
+        Events.instance.allPlayerDeadUI();
         GameStateManager.Instance.currentGamePhase = GamePhase.allPlayersDead;
         Time.timeScale = 0f;
 
@@ -115,49 +135,19 @@ public class MultiplayerManager : NetworkBehaviour
     void LocalPlayerDeadClientRpc()
     {
         // Event That Activates Continue Watching or Quit Ui 
-        Events.playerDeathUI();
+        Events.instance.playerDeathUI();
     }
     #endregion
 
     #region Ready and Pause
-    void CallPlayerReadyRpc()
-    {
-        LocalPlayerReadyServerRpc();
-        Debug.Log("CAlled");
-    }
 
-    [ServerRpc(RequireOwnership = false)]
-    void LocalPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
-    {
-        playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
-        bool allClientsReady = true;
-        foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-        {
-            if(!playerReadyDictionary.ContainsKey(clientId) || !playerReadyDictionary[clientId])
-            {
-                allClientsReady = false;
-                break;
-            }
-        }
-        if(allClientsReady) 
-        {
-           
-            AllClientsReadyClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds}});
-        }
-    }
 
-    [ClientRpc]
-    void AllClientsReadyClientRpc(ClientRpcParams clientRpcParams)
-    {
-        GameStateToggle();
-    }
-
-    void GameStateToggle()
-    {
-        Events.playerReadyPanelToggleOff();
-        Events.playerPanelToggleOn();
-        GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
-    }
+    //void GameStateToggle()
+    //{
+    //    Events.instance.playerReadyPanelToggleOff();
+    //    Events.instance.playerPanelToggleOn();
+    //    GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
+    //}
 
     // Functions to call ServerRpc via Events
     private void CallRpcToPauseGame()
@@ -185,7 +175,15 @@ public class MultiplayerManager : NetworkBehaviour
         }
         if(onePause)
         {
-            CallToPauseAllClientsCLientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
+            List<ulong> clientIds = new List<ulong>();
+            foreach(var client in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                if(client != OwnerClientId)
+                {
+                    clientIds.Add(client);  
+                }
+            }
+            CallToPauseAllClientsCLientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = clientIds } });
         }
 
 
@@ -214,7 +212,7 @@ public class MultiplayerManager : NetworkBehaviour
     [ClientRpc]
     private void CallToPauseAllClientsCLientRpc(ClientRpcParams clientRpcParams)
     {
-        Events.gamePausedBySomePlayerMulti();
+        Events.instance.gamePausedBySomePlayerMulti();
         GameStateManager.Instance.currentGameState = GameState.gamePaused;
     }
 
@@ -222,8 +220,10 @@ public class MultiplayerManager : NetworkBehaviour
     [ClientRpc]
     private void CallToUnPauseAllClientsClientRpc(ClientRpcParams clientRpcParams)
     {
-        Events.gameUnpausedBySomePlayerMulti();
+        Events.instance.gameUnpausedBySomePlayerMulti();
         GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
     }
     #endregion
+
+   
 }

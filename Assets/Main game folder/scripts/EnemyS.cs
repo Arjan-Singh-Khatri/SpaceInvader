@@ -137,7 +137,7 @@ public class EnemyS : Enemy
         Invoke(nameof(DestroyShip), destroyAnimationTIme);
         animator.SetBool("destroy", true);
         healthShip = 50;
-        Events.playExplodeSound();
+        Events.instance.playExplodeSound();
         Drop();
         isDestroyed = true;
 

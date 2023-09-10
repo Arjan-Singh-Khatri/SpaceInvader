@@ -11,7 +11,7 @@ public class AudioManager : MonoBehaviour
     private void Start()
     {
         explode = GetComponent<AudioSource>();
-        Events.playExplodeSound += PlayExplodeSound;
+        Events.instance.playExplodeSound += PlayExplodeSound;
     }
     private void Update()
     {
