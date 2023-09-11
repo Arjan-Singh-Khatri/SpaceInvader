@@ -1,8 +1,5 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -14,6 +11,7 @@ public class ReadyLogic : NetworkBehaviour
     Dictionary<ulong, bool> playerReadyDictionary;
     private void Start()
     {
+        playerReadyDictionary = new Dictionary<ulong, bool>();
         instance = this;
     }
 
@@ -25,6 +23,7 @@ public class ReadyLogic : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void LocalPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
+        Debug.Log("Called");
         playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
         bool allClientsReady = true;
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -37,9 +36,17 @@ public class ReadyLogic : NetworkBehaviour
         }
         if (allClientsReady)
         {
-
+            GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
+            //GameStateToggleClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.ConnectedClientsIds } });
             NetworkManager.SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         }
+        
+    }
+
+    [ClientRpc]
+    void GameStateToggleClientRpc(ClientRpcParams clientRpcParams)
+    {
+        GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
     }
 
 

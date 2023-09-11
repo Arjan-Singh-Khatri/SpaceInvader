@@ -21,7 +21,7 @@ public class MultiplayerManager : NetworkBehaviour
     private void Awake()
     {
         instance = this;
-
+        
         playerPauseDictionary = new Dictionary<ulong, bool>();
         playerDeathDictionary = new Dictionary<ulong, bool>();
 
@@ -34,7 +34,7 @@ public class MultiplayerManager : NetworkBehaviour
         Events.instance.CallToPauseGameMulti += CallRpcToPauseGame;
         Events.instance.CallToUnPauseGameMulti += CallRpcToUnPauseGame;
         Events.instance.playerDeath += PlayerDeathRpcCall;
-        Events.instance.waveDelegate += CallWaveUIRpc;
+        //Events.instance.waveDelegate += CallWaveUIRpc;
 
     }
 
@@ -51,12 +51,13 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
-        //foreach(ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
-        //{
-        //    Transform instantiatedObject = Instantiate(playerPrefab);
-        //    instantiatedObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId,true);
-        //}
-        Debug.Log("Scene Name : " + sceneName);
+        if (sceneName != "SampleScene") return;
+        foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+        {
+            Transform instantiatedObject = Instantiate(playerPrefab);
+            instantiatedObject.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+        }
+
     }
 
     #region Late join
@@ -101,25 +102,25 @@ public class MultiplayerManager : NetworkBehaviour
     }
     #endregion
 
-    #region Wave
+    //#region Wave
 
-    void CallWaveUIRpc(int waveNumber)
-    {
-        WaveUIServerRpc(waveNumber);
-    }
+    //void CallWaveUIRpc(int waveNumber)
+    //{
+    //    WaveUIServerRpc(waveNumber);
+    //}
 
-    [ServerRpc(RequireOwnership =false)]
-    void WaveUIServerRpc(int waveNumber,ServerRpcParams serverRpcParams = default)
-    {
-        WaveUIClientRpc(waveNumber, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
-    }
+    //[ServerRpc(RequireOwnership =false)]
+    //void WaveUIServerRpc(int waveNumber,ServerRpcParams serverRpcParams = default)
+    //{
+    //    WaveUIClientRpc(waveNumber, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
+    //}
 
-    [ClientRpc]
-    void WaveUIClientRpc(int waveNumber,ClientRpcParams clientRpcParams)
-    {
-        Events.instance.waveDelegate(waveNumber);
-    }
-    #endregion
+    //[ClientRpc]
+    //void WaveUIClientRpc(int waveNumber,ClientRpcParams clientRpcParams)
+    //{
+    //    Events.instance.waveDelegate(waveNumber);
+    //}
+    //#endregion
 
     #region Disconnect Handel and Player Death Online
     //Disconnect handling
@@ -283,7 +284,8 @@ public class MultiplayerManager : NetworkBehaviour
         Events.instance.CallToPauseGameMulti -= CallRpcToPauseGame;
         Events.instance.CallToUnPauseGameMulti -= CallRpcToUnPauseGame;
         Events.instance.playerDeath -= PlayerDeathRpcCall;
-        Events.instance.waveDelegate -= CallWaveUIRpc;
+        //Events.instance.waveDelegate -= CallWaveUIRpc;
     }
+
 
 }

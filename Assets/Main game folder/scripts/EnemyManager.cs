@@ -64,7 +64,7 @@ public class EnemyManager : NetworkBehaviour
                     if (waveIntervalTimer <= 0)
                     {
                         ++waveNumber;
-                        Events.instance.waveDelegate(waveNumber);
+                        //Events.instance.waveDelegate(waveNumber);
                         waveValue = waveNumber * 10 + 5;
                         waveIntervalTimer = 5f;
                         GenerateEnemies();

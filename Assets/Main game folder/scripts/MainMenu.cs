@@ -36,12 +36,12 @@ public class MainMenu : NetworkBehaviour
     Vector3 waveTextOgPosition = new Vector3(0,273f, 0);
 
     [Header("Multiplayer  && Game state State")]
-    [SerializeField] GameObject playerReadyPanel;
-    [SerializeField] Button ready;
-    [SerializeField] TextMeshProUGUI waitingForPlayer;
-    [SerializeField] GameObject multiPlayerPanel;
-    [SerializeField] Button client;
-    [SerializeField] Button host;
+    //[SerializeField] GameObject playerReadyPanel;
+    //[SerializeField] Button ready;
+    //[SerializeField] TextMeshProUGUI waitingForPlayer;
+    //[SerializeField] GameObject multiPlayerPanel;
+    //[SerializeField] Button client;
+    //[SerializeField] Button host;
     [SerializeField] GameObject gamePausedBySomePlayerPanel;
 
     [Header("Disconnect && Multiplayer Player Death")]
@@ -61,7 +61,7 @@ public class MainMenu : NetworkBehaviour
         #region events
 
         Events.instance.playerPanelToggleOn += PlayerPanelToggleOn;
-        Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
+        //Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
         Events.instance.gamePausedBySomePlayerMulti += LocalGamePausedBySomePlayer;
         Events.instance.gameUnpausedBySomePlayerMulti += LocalGameUnPaused;
         Events.instance.gameOver += GameOverUI;
@@ -81,33 +81,33 @@ public class MainMenu : NetworkBehaviour
         bulletLeftText.text = "X" + 25.ToString();
         missileLeftText.text ="X" + 6.ToString();
         mainMenuPlayerDeath.onClick.AddListener(GoToMainMenu);
-        ready.onClick.AddListener(() =>
-        {
-            Ready();
-        });
+        //ready.onClick.AddListener(() =>
+        //{
+        //    Ready();
+        //});
         #endregion
 
-        #region Netcode UI
+        //#region Netcode UI
 
 
-        host.onClick.AddListener(() =>
-        {
-            GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
-            Events.instance.Host();
-            MultiPlayerPanelToggle();
-            PlayerReadyPanelToggle();
+        //host.onClick.AddListener(() =>
+        //{
+        //    GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
+        //    Events.instance.Host();
+        //    MultiPlayerPanelToggle();
+        //    PlayerReadyPanelToggle();
 
-        });
+        //});
 
-        client.onClick.AddListener(() =>
-        {
-            GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
-            Events.instance.client();
-            MultiPlayerPanelToggle();
-            PlayerReadyPanelToggle();
+        //client.onClick.AddListener(() =>
+        //{
+        //    GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
+        //    Events.instance.client();
+        //    MultiPlayerPanelToggle();
+        //    PlayerReadyPanelToggle();
 
-        });
-        #endregion
+        //});
+        //#endregion
     }
     
     // Update is called once per frame
@@ -126,8 +126,8 @@ public class MainMenu : NetworkBehaviour
             }
 
         }
-        if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
-            multiPlayerPanel.SetActive(false);
+        //if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        //    multiPlayerPanel.SetActive(false);
 
         if (!(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)) return;
         if (!IsOwner) return;
@@ -165,21 +165,21 @@ public class MainMenu : NetworkBehaviour
     #endregion
 
     #region MultiplayerGameStarted
-    void Ready()
-    {
-        //if (!IsOwner) return;
-        ready.gameObject.SetActive(false);
-        Events.instance.playerReady();
-    }
+    //void Ready()
+    //{
+    //    //if (!IsOwner) return;
+    //    ready.gameObject.SetActive(false);
+    //    Events.instance.playerReady();
+    //}
 
-    void PlayerReadyPanelToggle()
-    {
-        playerReadyPanel.SetActive(true);   
-    }
-    void PlayerReadyPanelToggleOff()
-    {
-        playerReadyPanel.SetActive(false);
-    }
+    //void PlayerReadyPanelToggle()
+    //{
+    //    playerReadyPanel.SetActive(true);   
+    //}
+    //void PlayerReadyPanelToggleOff()
+    //{
+    //    playerReadyPanel.SetActive(false);
+    //}
 
     void LocalGamePausedBySomePlayer()
     {
@@ -197,10 +197,10 @@ public class MainMenu : NetworkBehaviour
     #endregion
 
     #region Menu UI
-    private void MultiPlayerPanelToggle()
-    {
-        multiPlayerPanel.SetActive(false);
-    }
+    //private void MultiPlayerPanelToggle()
+    //{
+    //    multiPlayerPanel.SetActive(false);
+    //}
     private void PlayAgain()
     {
         SceneManager.LoadScene("SampleScene");
@@ -310,12 +310,18 @@ public class MainMenu : NetworkBehaviour
     #endregion
 
 
-    private void OnDisable()
+    private void OnDestroy()
     {
+        Events.instance.playerPanelToggleOn -= PlayerPanelToggleOn;
+        //Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
+        Events.instance.gamePausedBySomePlayerMulti -= LocalGamePausedBySomePlayer;
+        Events.instance.gameUnpausedBySomePlayerMulti -= LocalGameUnPaused;
         Events.instance.gameOver -= GameOverUI;
-        Events.instance.waveDelegate -= WaveTextMove;
         Events.instance.ammoCount -= AmmoCount;
         Events.instance.healthCount -= HealthSlider;
+        Events.instance.allPlayerDeadUI -= AllPlayerDeadUi;
+        Events.instance.playerDeathUI -= PlayerDeadUi;
+        Events.instance.hostDisconnect -= HostDisconnectUi;
     }
 
 }
