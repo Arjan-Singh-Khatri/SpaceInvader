@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -6,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class ReadyLogic : NetworkBehaviour
 {
     public static ReadyLogic instance;
-    
+    public event EventHandler onPlayerReadyChange;
 
     Dictionary<ulong, bool> playerReadyDictionary;
     private void Start()
@@ -23,7 +24,7 @@ public class ReadyLogic : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void LocalPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        Debug.Log("Called");
+        SetPlayerReadyClientRpc(serverRpcParams.Receive.SenderClientId);
         playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
         bool allClientsReady = true;
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -49,5 +50,15 @@ public class ReadyLogic : NetworkBehaviour
         GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
     }
 
+    [ClientRpc]
+    void SetPlayerReadyClientRpc(ulong clientId)
+    {
+        playerReadyDictionary[clientId] = true;
+        onPlayerReadyChange?.Invoke(this, EventArgs.Empty);
+    }
 
+    public bool IsPlayerReady(ulong clientID)
+    {
+        return playerReadyDictionary[clientID] && playerReadyDictionary.ContainsKey(clientID) ;
+    }
 }

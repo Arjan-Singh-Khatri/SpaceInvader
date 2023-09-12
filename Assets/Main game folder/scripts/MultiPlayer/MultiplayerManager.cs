@@ -17,6 +17,10 @@ public class MultiplayerManager : NetworkBehaviour
 
     public event EventHandler onTryingToJoinGame;
     public event EventHandler onFailedToJoinGame;
+    public event EventHandler onPlayerDataListChange;
+
+    [SerializeField]private NetworkList<PlayerData> playerDatanNetworkListSO;
+    [SerializeField]private List<Color> playerColorList;
 
     private void Awake()
     {
@@ -25,8 +29,17 @@ public class MultiplayerManager : NetworkBehaviour
         playerPauseDictionary = new Dictionary<ulong, bool>();
         playerDeathDictionary = new Dictionary<ulong, bool>();
 
+        playerDatanNetworkListSO = new NetworkList<PlayerData>();
+        playerDatanNetworkListSO.OnListChanged += PlayerDatanNetworkListSO_OnListChanged;
+
         DontDestroyOnLoad(gameObject);
     }
+
+    private void PlayerDatanNetworkListSO_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
+    {
+        onPlayerDataListChange?.Invoke(this, EventArgs.Empty);
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -46,7 +59,16 @@ public class MultiplayerManager : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientDisconnectCallback += On_Disconnect_Local_Player;
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
+            NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         }
+    }
+
+    private void NetworkManager_OnClientConnectedCallback(ulong clientId)
+    {
+        playerDatanNetworkListSO.Add(new PlayerData
+        {
+            clientId = clientId,
+        });
     }
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
@@ -287,5 +309,15 @@ public class MultiplayerManager : NetworkBehaviour
         //Events.instance.waveDelegate -= CallWaveUIRpc;
     }
 
-
+    #region CharacterSelect
+    
+    public bool IsPlayerIndexConnected(int playerIndex)
+    {
+        return playerIndex <  playerDatanNetworkListSO.Count;
+    }
+    public PlayerData GetPlayerDataFromPlayerIndex(int playerIndex)
+    {
+        return playerDatanNetworkListSO[playerIndex];   
+    }
+    #endregion
 }
