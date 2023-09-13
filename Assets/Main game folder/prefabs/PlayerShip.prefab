@@ -154,6 +154,7 @@ GameObject:
   - component: {fileID: -6450030883135443339}
   - component: {fileID: -8319812764043976997}
   - component: {fileID: 7848059550419690614}
+  - component: {fileID: -9003117116405537996}
   m_Layer: 0
   m_Name: PlayerShip
   m_TagString: Player
@@ -257,6 +258,7 @@ MonoBehaviour:
   missile: {fileID: 2520905092140479226, guid: 0a4b694c8c9f0bd489d208a45014a93e, type: 3}
   bullet: {fileID: 5857931000029318853, guid: eca02e097f61f074d9845d7c0c94d479, type: 3}
   fireingPoint: {fileID: 2902715985427187490}
+  playerVisual: {fileID: -9003117116405537996}
 --- !u!95 &2902715986107336278
 Animator:
   serializedVersion: 5
@@ -386,3 +388,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 80d7c879794dfda4687da0e400131852, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &-9003117116405537996
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2902715986107336274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 139b1963f2bf2c949b940968cdd9f7a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteRenderer: {fileID: 2902715986107336272}

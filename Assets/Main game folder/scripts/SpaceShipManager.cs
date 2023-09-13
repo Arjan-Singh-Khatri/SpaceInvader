@@ -23,6 +23,14 @@ public class SpaceShipManager : NetworkBehaviour
     int damageTakeFromCollision = 5;
     float angleForRotation;
 
+    [SerializeField] PlayerVisual playerVisual;
+
+    private void Start()
+    {
+        PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
+        playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
+    }
+
     void Update()
     {
         horizontal = Input.GetAxis("Horizontal");

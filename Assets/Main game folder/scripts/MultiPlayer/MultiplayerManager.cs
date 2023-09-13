@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,6 +22,7 @@ public class MultiplayerManager : NetworkBehaviour
 
     [SerializeField]private NetworkList<PlayerData> playerDatanNetworkListSO;
     [SerializeField]private List<Color> playerColorList;
+
 
     private void Awake()
     {
@@ -87,7 +89,20 @@ public class MultiplayerManager : NetworkBehaviour
     public void StartTheHost()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManagr_ConnectionApprovalCallBack;
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
         NetworkManager.StartHost();
+    }
+
+    private void NetworkManager_Server_OnClientDisconnectCallback(ulong clientId)
+    {
+        for(int i = 0; i < playerDatanNetworkListSO.Count ; i++)
+        {
+            PlayerData playerData = playerDatanNetworkListSO[i];
+            if(clientId == playerData.clientId)
+            {
+                playerDatanNetworkListSO.RemoveAt(i);
+            }
+        }
     }
 
     private void NetworkManagr_ConnectionApprovalCallBack(NetworkManager.ConnectionApprovalRequest connectionApprovalRequest, NetworkManager.ConnectionApprovalResponse connectionApprovalResponse)
@@ -114,11 +129,11 @@ public class MultiplayerManager : NetworkBehaviour
     {
         onTryingToJoinGame?.Invoke(this, EventArgs.Empty);
 
-        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Client_OnClientDisconnectCallback;
         NetworkManager.StartClient();
     }
 
-    private void NetworkManager_OnClientDisconnectCallback(ulong clientID)
+    private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientID)
     {
         onFailedToJoinGame?.Invoke(this, EventArgs.Empty);
     }
@@ -318,6 +333,23 @@ public class MultiplayerManager : NetworkBehaviour
     public PlayerData GetPlayerDataFromPlayerIndex(int playerIndex)
     {
         return playerDatanNetworkListSO[playerIndex];   
+    }
+
+    public PlayerData GetPlayerDataFromClientId(ulong ClientID)
+    {
+        foreach(PlayerData data in playerDatanNetworkListSO)
+        {
+            if(data.clientId == ClientID)
+            {
+                return data;
+            }
+        }
+        return default;
+    }
+
+    public Color GetPlayerColorForPlayer(int colorID)
+    {
+        return playerColorList[colorID];
     }
     #endregion
 }
