@@ -9,6 +9,7 @@ using UnityEngine.SceneManagement;
 public class MultiplayerManager : NetworkBehaviour
 {
     public int MAX_PLAYER_COUNT = 2;
+    private string PLAYER_PREF_PLAYER_NAME_MULTIPLAYER;
     public static MultiplayerManager instance;
 
     Dictionary<ulong, bool> playerPauseDictionary;
@@ -23,6 +24,7 @@ public class MultiplayerManager : NetworkBehaviour
     [SerializeField]private NetworkList<PlayerData> playerDatanNetworkListSO;
     [SerializeField]private List<Color> playerColorList;
 
+    private string playerName;  
 
     private void Awake()
     {
@@ -34,7 +36,19 @@ public class MultiplayerManager : NetworkBehaviour
         playerDatanNetworkListSO = new NetworkList<PlayerData>();
         playerDatanNetworkListSO.OnListChanged += PlayerDatanNetworkListSO_OnListChanged;
 
+        playerName = PlayerPrefs.GetString(PLAYER_PREF_PLAYER_NAME_MULTIPLAYER,"Player Name " +  UnityEngine.Random.Range(100, 1000));
         DontDestroyOnLoad(gameObject);
+    }
+
+    public string GetPlayerName()
+    {
+        return playerName;
+    }
+
+    public void SetPlayerName(string playerName)
+    {
+        this.playerName = playerName;
+        PlayerPrefs.SetString(PLAYER_PREF_PLAYER_NAME_MULTIPLAYER, playerName);
     }
 
     private void PlayerDatanNetworkListSO_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
@@ -90,7 +104,13 @@ public class MultiplayerManager : NetworkBehaviour
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManagr_ConnectionApprovalCallBack;
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Server_OnClientConnectedCallback;
         NetworkManager.StartHost();
+    }
+
+    private void NetworkManager_Server_OnClientConnectedCallback(ulong obj)
+    {
+        SetPlayerServerRpc(GetPlayerName());
     }
 
     private void NetworkManager_Server_OnClientDisconnectCallback(ulong clientId)
@@ -130,7 +150,23 @@ public class MultiplayerManager : NetworkBehaviour
         onTryingToJoinGame?.Invoke(this, EventArgs.Empty);
 
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Client_OnClientDisconnectCallback;
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Client_OnClientConnectedCallback;
         NetworkManager.StartClient();
+    }
+
+    private void NetworkManager_Client_OnClientConnectedCallback(ulong clientID)
+    {
+        SetPlayerServerRpc(GetPlayerName());
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void SetPlayerServerRpc(string playerName ,ServerRpcParams rpcParams = default)
+    {
+        int playerDataIndex = GetPlayerDataIndexFromClientId(rpcParams.Receive.SenderClientId);
+        PlayerData playerData = playerDatanNetworkListSO[playerDataIndex];
+        playerData.playerName = playerName;
+
+        playerDatanNetworkListSO[playerDataIndex] = playerData;
     }
 
     private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientID)
@@ -350,6 +386,18 @@ public class MultiplayerManager : NetworkBehaviour
     public Color GetPlayerColorForPlayer(int colorID)
     {
         return playerColorList[colorID];
+    }
+
+    public int GetPlayerDataIndexFromClientId(ulong ClientID)
+    {
+        for(int i =0; i < playerDatanNetworkListSO.Count; i++)
+        {
+            if (playerDatanNetworkListSO[i].clientId == ClientID)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
     #endregion
 }

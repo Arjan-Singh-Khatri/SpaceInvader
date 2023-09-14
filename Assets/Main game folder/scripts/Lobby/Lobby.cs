@@ -1,18 +1,29 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Data.Common;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
 public class Lobby : NetworkBehaviour
 {
+
+    public event EventHandler<OnLobbyListChangedEventsArgs> onLobbyListChanged;   
+    public class OnLobbyListChangedEventsArgs : EventArgs { 
+        
+        public List<Unity.Services.Lobbies.Models.Lobby> lobbyList;
+    }
+
     public static Lobby instance;
     private Unity.Services.Lobbies.Models.Lobby joinedLobby;
     private float hearthBeatTimer;
+    private float listLobbyTimer;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,10 +35,24 @@ public class Lobby : NetworkBehaviour
     private void Update()
     {
         HandleLobbyHearthBeat();
+        HandleListLobbyCheck();
+    }
+
+    private void HandleListLobbyCheck()
+    {
+        listLobbyTimer -= Time.deltaTime;
+        if(listLobbyTimer <= 0f)
+        {
+            float maxListLobbyTimer = 3f;
+            listLobbyTimer = maxListLobbyTimer;
+            LIstLobbies();
+        }
     }
 
     private void HandleLobbyHearthBeat()
     {
+        if (!AuthenticationService.Instance.IsSignedIn) return;
+        if (joinedLobby != null) return;
         if (IsLobbyHost())
         {
             hearthBeatTimer -= Time.deltaTime;
@@ -52,7 +77,7 @@ public class Lobby : NetworkBehaviour
         if(UnityServices.State!=ServicesInitializationState.Initialized)
         {
             InitializationOptions initializationOptions = new InitializationOptions();
-            initializationOptions.SetProfile(Random.Range(0, 1000).ToString());
+            initializationOptions.SetProfile(UnityEngine.Random.Range(0, 1000).ToString());
             await UnityServices.InitializeAsync(initializationOptions);
 
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
@@ -101,6 +126,75 @@ public class Lobby : NetworkBehaviour
         catch(LobbyServiceException e)
         {
             Debug.Log(e);
+        }
+    }
+
+
+    public async void JoinWithID(string lobbyID)
+    {
+        try
+        {
+            joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyID);
+            MultiplayerManager.instance.StartClient();
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.Log(e);
+        }
+    }
+
+    public async void DeleteLobby()
+    {
+        if(joinedLobby !=null )
+        {
+            try
+            {
+                await LobbyService.Instance.DeleteLobbyAsync(joinedLobby.Id);
+                joinedLobby = null;
+            }
+            catch(LobbyServiceException e)
+            {
+                Debug.Log(e);
+            }
+
+        }
+    }
+
+    public async void LeaveLobby()
+    {
+        if(joinedLobby!= null)
+        {
+            try
+            {
+                await LobbyService.Instance.RemovePlayerAsync(joinedLobby.Id, AuthenticationService.Instance.PlayerId);
+                joinedLobby = null;
+            }catch(LobbyServiceException e) 
+            {
+                Debug.Log(e);
+            }
+        }
+    }
+
+    public async void LIstLobbies()
+    {
+        try
+        {
+            QueryLobbiesOptions queryLobbiesOptions = new QueryLobbiesOptions
+            {
+                Filters = new List<QueryFilter>
+            {
+                new QueryFilter(QueryFilter.FieldOptions.AvailableSlots, "0", QueryFilter.OpOptions.GT)
+            }
+            };
+
+            QueryResponse queryResponse = await LobbyService.Instance.QueryLobbiesAsync(queryLobbiesOptions);
+            onLobbyListChanged?.Invoke(this, new OnLobbyListChangedEventsArgs
+            {
+                lobbyList = queryResponse.Results
+            }) ;
+        }catch(LobbyServiceException e)
+        {
+            Debug.Log(e);   
         }
     }
 }

@@ -22,6 +22,7 @@ public class CharacterSelectUi : MonoBehaviour
 
         menu.onClick.AddListener(() =>
         {
+            Lobby.instance.LeaveLobby();
             SceneManager.LoadScene("MainMenu");
         });
 

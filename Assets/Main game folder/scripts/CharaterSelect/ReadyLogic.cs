@@ -37,8 +37,8 @@ public class ReadyLogic : NetworkBehaviour
         }
         if (allClientsReady)
         {
+            Lobby.instance.DeleteLobby();
             GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
-            //GameStateToggleClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.ConnectedClientsIds } });
             NetworkManager.SceneManager.LoadScene("SampleScene", LoadSceneMode.Single);
         }
         
