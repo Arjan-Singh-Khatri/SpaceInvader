@@ -79,4 +79,9 @@ public class LobbyUI : MonoBehaviour
         }
 
     }
+
+    private void OnDestroy()
+    {
+        Lobby.instance.onLobbyListChanged -= Lobby_onLobbyListChanged;
+    }
 }
