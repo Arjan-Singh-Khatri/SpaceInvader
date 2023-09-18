@@ -29,7 +29,7 @@ public class Boss : MonoBehaviour
     {
         if (isShooting)
         {
-            Debug.Log("shooting");
+            
             shootingTimer -= Time.fixedDeltaTime;
             if (shootingTimer <= 0)
             {
@@ -47,7 +47,7 @@ public class Boss : MonoBehaviour
 
         } else if (!isShooting)
         {
-            Debug.Log("forcefield");
+            
             forceFieldOnTimer -=Time.fixedDeltaTime;
             if(forceFieldOnTimer<=0) 
             {
@@ -63,7 +63,7 @@ public class Boss : MonoBehaviour
     {
         GameObject ins = Instantiate(bulletPrefab, shootingPoint.position, Quaternion.identity);
         list.Add(ins);
-        Debug.Log("bullet instantiated !");
+        
     }
 
     void ForceFieldOff()
