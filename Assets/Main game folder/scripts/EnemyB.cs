@@ -30,14 +30,12 @@ public class EnemyB : Enemy
     [SerializeField]private GameObject[] listOfDropItems;
 
     [Header("Multiplayer")]
-    private GameObject playerForMultiplayer;
+    private GameObject playerForTracking;
     private bool isFirst = true;
 
     // Start is called before the first frame update
     void Start()
     {
-
-        player = GameObject.FindGameObjectWithTag("Player");
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
         foreach (AnimationClip clip in animationClips)
@@ -47,7 +45,10 @@ public class EnemyB : Enemy
                 destroyAnimationTIme = clip.length;
             }
         }
-        CallServerToGetClientListServerRpc();
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+            CallServerToGetClientListServerRpc();
+        else
+            playerForTracking = GameObject.FindGameObjectWithTag("Player");
 
     }
     // Update is called once per frame
@@ -70,13 +71,13 @@ public class EnemyB : Enemy
             
             if (!IsOwner) return;
             shootTimer -= Time.deltaTime;
-            if (playerForMultiplayer == null )
+            if (playerForTracking == null )
             {
                 
                 CallServerToGetClientListServerRpc();
             }
 
-            Movement(playerForMultiplayer, speed);
+            Movement(playerForTracking, speed);
             if (shootTimer <= 0)
             {
 
@@ -104,7 +105,7 @@ public class EnemyB : Enemy
         var randomClientID = Random.Range(0,NetworkManager.Singleton.ConnectedClientsList.Count);
         if (isFirst)
         {
-            playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+            playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
             isFirst = false;
         }
 
@@ -119,7 +120,7 @@ public class EnemyB : Enemy
                 if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject == null)
                     continue;
                 else
-                    playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+                    playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
             }
 
             
@@ -141,13 +142,13 @@ public class EnemyB : Enemy
     {
         if (collision.gameObject.CompareTag("PlayerMissile") && !isDestroyed)
         {
-            Destroy(collision.gameObject);
+
             TakeDamage(damageFromMissile, ref healthShip);
         }
             
         if (collision.gameObject.CompareTag("PlayerBullet") && !isDestroyed)
         {
-            Destroy(collision.gameObject);
+
             TakeDamage(damageFromBullet, ref healthShip);
         }
 

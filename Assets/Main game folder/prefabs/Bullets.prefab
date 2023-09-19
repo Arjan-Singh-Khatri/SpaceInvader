@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: -2504242587562145230}
   - component: {fileID: 6996389956963655088}
   - component: {fileID: 5907890835714072455}
+  - component: {fileID: 8633931668040712368}
   m_Layer: 0
   m_Name: Bullets
   m_TagString: DropBullet
@@ -163,3 +164,15 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &8633931668040712368
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5324504281728227758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a341b564812e45d43a2ade8e9992f78e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

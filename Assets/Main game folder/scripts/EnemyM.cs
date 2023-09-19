@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class EnemyM : Enemy
 {
-    private GameObject player;
+
     private readonly float speed = .5f;
     private int healthShip = 60;
 
@@ -23,13 +23,13 @@ public class EnemyM : Enemy
     [SerializeField] GameObject[] listOfDropItems;
 
     [Header("Multiplayer")]
-    GameObject playerForMultiplayer;
+    GameObject playerForTracking;
     private bool isFirst = true;
     // Start is called before the first frame update
     void Start()
     {
 
-        player = GameObject.FindGameObjectWithTag("Player");
+
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
         foreach (AnimationClip clip in animationClips)
@@ -41,7 +41,10 @@ public class EnemyM : Enemy
 
 
         }
-        CallServerToGetClientListServerRpc();
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+            CallServerToGetClientListServerRpc();
+        else
+            playerForTracking = GameObject.FindGameObjectWithTag("Player");
     }
     // Update is called once per frame
     void Update()
@@ -51,7 +54,7 @@ public class EnemyM : Enemy
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             shootTimer -= Time.deltaTime;
-            Movement(player, speed);
+            Movement(playerForTracking, speed);
             if (shootTimer <= 0)
             {
                 Shooting(ref shootingPoint, missilePrefab);
@@ -63,20 +66,19 @@ public class EnemyM : Enemy
 
             if (!IsOwner) return;
             shootTimer -= Time.deltaTime;
-            if (playerForMultiplayer == null)
+            if (playerForTracking == null)
             {
                 Debug.Log("A");
                 CallServerToGetClientListServerRpc();
             }
 
-            Movement(playerForMultiplayer, speed);
+            Movement(playerForTracking, speed);
             if (shootTimer <= 0)
             {
                 CallToShootServerRpc();
                 shootTimer = 4f;
             }
         }
-        //
         ShipDestroy();
     }
     [ServerRpc(RequireOwnership = false)]
@@ -96,7 +98,7 @@ public class EnemyM : Enemy
         var randomClientID = Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
         if (isFirst)
         {
-            playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+            playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
             isFirst = false;
         }
         else
@@ -106,7 +108,7 @@ public class EnemyM : Enemy
                 if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject == null)
                     continue;
                 else
-                    playerForMultiplayer = NetworkManager.Singleton.ConnectedClients[client].PlayerObject.gameObject;
+                    playerForTracking = NetworkManager.Singleton.ConnectedClients[client].PlayerObject.gameObject;
             }
         }
 
@@ -124,13 +126,11 @@ public class EnemyM : Enemy
     {
         if (collision.gameObject.CompareTag("PlayerMissile"))
         {
-            Destroy(collision.gameObject);
             TakeDamage(damageFromMissile, ref healthShip);
         }
             
         if (collision.gameObject.CompareTag("PlayerBullet"))
         {
-            Destroy(collision.gameObject);
             TakeDamage(damageFromBullet, ref healthShip);
         }
 

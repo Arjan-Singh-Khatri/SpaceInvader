@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 4638310278981746171}
   - component: {fileID: -996067423133319084}
   - component: {fileID: -3035619042326181908}
+  - component: {fileID: -3021018311531412741}
   m_Layer: 0
   m_Name: Missile_Counter
   m_TagString: DropMissile
@@ -163,3 +164,15 @@ MonoBehaviour:
   SpawnWithObservers: 1
   DontDestroyWithOwner: 0
   AutoObjectParentSync: 1
+--- !u!114 &-3021018311531412741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4246359498578031315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a341b564812e45d43a2ade8e9992f78e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

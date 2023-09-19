@@ -39,8 +39,18 @@ public class Projectiles : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Donot Destroy if enemy bullet hit enemy and player bullet hit player
-        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") && GameStateManager.Instance.currentGameMode==GameMode.MultiPlayer)
-            DespawnServerRpc();
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy"))
+                DespawnServerRpc();
+
+        }
+        else
+        {
+            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy"))
+                Destroy(gameObject);
+        }
+;
 
     }
 

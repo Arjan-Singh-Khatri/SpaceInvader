@@ -184,44 +184,39 @@ public class SpaceShipManager : NetworkBehaviour
         {
             bulletCount += 10;
             Events.instance.ammoCount(bulletCount, missleCount);
-            Destroy(collision.gameObject);
+            
         }
 
         if (collision.gameObject.CompareTag("DropMissile"))
         {
             missleCount += 5;
             Events.instance.ammoCount(bulletCount, missleCount);
-            Destroy(collision.gameObject);
         }
 
         if (collision.gameObject.CompareTag("Health"))
         {
             HealthManagerFunction();
-            Destroy(collision.gameObject);
+
             
         }
         if (collision.gameObject.CompareTag("GunEnemy"))
         {
             TakeDamage(damageTakenFromBullet);
-            Destroy(collision.gameObject);
         }
 
         if (collision.gameObject.CompareTag("MissileEnemy"))
         {
             TakeDamage(damageTakenFromMissile);
-            Destroy(collision.gameObject);
         }
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
             TakeDamage(damageTakeFromCollision);
-             
         }
 
         if (collision.gameObject.CompareTag("BossBullet"))
         {
             TakeDamage(40);
-            Destroy(collision.gameObject);
         }
 
         if (collision.gameObject.CompareTag("Boss"))
@@ -231,4 +226,6 @@ public class SpaceShipManager : NetworkBehaviour
 
         
     }
+
+
 }

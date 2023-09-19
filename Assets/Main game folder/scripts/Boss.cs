@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Boss : MonoBehaviour
+public class Boss : NetworkBehaviour
 {
     bool isShooting= true;
     [SerializeField] ParticleSystem forceField;
@@ -14,11 +15,11 @@ public class Boss : MonoBehaviour
     private float forceFieldOnTimer = 10f;
     private int bulletCount = 0;
 
-    private List<GameObject> list = new();
 
     // Start is called before the first frame update
     void Start()
     {
+        // spawn 
         instantiatedParticleSystem = Instantiate(forceField, transform.localPosition, Quaternion.identity);
         instantiatedParticleSystem.Stop();
     }
@@ -27,42 +28,25 @@ public class Boss : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        if (isShooting)
-        {
-            
-            shootingTimer -= Time.fixedDeltaTime;
-            if (shootingTimer <= 0)
-            {
-                ShootPlayer();
-                shootingTimer = 5f;
-                bulletCount++;
-                if (bulletCount == 3)
-                {
-                    isShooting = false;
-                    ForceFieldOn();
-                    bulletCount = 0;
-                    list.Clear();
-                }
-            }
+        // Bullet Spawning 
+    }
 
-        } else if (!isShooting)
-        {
-            
-            forceFieldOnTimer -=Time.fixedDeltaTime;
-            if(forceFieldOnTimer<=0) 
-            {
-                forceFieldOnTimer = 10f;
-                ForceFieldOff();
-                isShooting = true;
-            }
-            
-        }
+    #region Multiplayer Stuff
+
+
+    #endregion
+
+
+    #region Functions For Boss 
+    void MovementOfEnemyShip()
+    {
+
     }
 
     void ShootPlayer()
     {
-        GameObject ins = Instantiate(bulletPrefab, shootingPoint.position, Quaternion.identity);
-        list.Add(ins);
+        // Spawn in Server
+        GameObject instantiated = Instantiate(bulletPrefab, shootingPoint.position, Quaternion.identity);
         
     }
 
@@ -76,8 +60,7 @@ public class Boss : MonoBehaviour
         instantiatedParticleSystem.Play();
     }
 
-    void MovementOfEnemyShip()
-    {
-           
-    }
+    #endregion
+
+   
 }
