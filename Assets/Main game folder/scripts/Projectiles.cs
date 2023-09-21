@@ -41,13 +41,13 @@ public class Projectiles : NetworkBehaviour
         // Donot Destroy if enemy bullet hit enemy and player bullet hit player
         if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy"))
+            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Boss") || collision.gameObject.CompareTag("Shield"))
                 DespawnServerRpc();
 
         }
         else
         {
-            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy"))
+            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Boss") || collision.gameObject.CompareTag("Shield"))
                 Destroy(gameObject);
         }
 ;

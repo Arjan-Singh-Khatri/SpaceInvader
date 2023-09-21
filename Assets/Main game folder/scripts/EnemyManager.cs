@@ -26,10 +26,9 @@ public class EnemyManager : NetworkBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        #region Old Horrible Looking code
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer && GameStateManager.Instance.currentGameState == GameState.allPlayersReady)
         {
-            if (GameStateManager.Instance.currentGamePhase == GamePhase.allPlayersDead)
-                return;
             #region IsMUltiplayer And Server
             if (waveNumber == 3)
             {
@@ -117,7 +116,8 @@ public class EnemyManager : NetworkBehaviour
                 }
             }
         }
-         
+        #endregion
+
     }
 
 

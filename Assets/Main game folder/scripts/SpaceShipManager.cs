@@ -196,7 +196,6 @@ public class SpaceShipManager : NetworkBehaviour
         if (collision.gameObject.CompareTag("Health"))
         {
             HealthManagerFunction();
-
             
         }
         if (collision.gameObject.CompareTag("GunEnemy"))
@@ -224,6 +223,10 @@ public class SpaceShipManager : NetworkBehaviour
             TakeDamage(10);
         }
 
+        if (collision.gameObject.CompareTag("Shield"))
+        {
+            TakeDamage(40);
+        }
         
     }
 

@@ -25,9 +25,19 @@ public class BoosBullet : NetworkBehaviour
         MovementFunction();
         bulletLifeTime -= Time.fixedDeltaTime;
         if (bulletLifeTime <= 0)
-            Destroy(gameObject);
-        if (GameStateManager.Instance.currentGameMode != GameMode.MultiPlayer) return;
+            DestroyBullet();
 
+    }
+
+    private void DestroyBullet()
+    {
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            gameObject.GetComponent<NetworkObject>().Despawn(true);
+        }else
+        {
+            Destroy(gameObject);
+        }
     }
 
     void MovementFunction()
