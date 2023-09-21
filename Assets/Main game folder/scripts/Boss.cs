@@ -31,14 +31,16 @@ public class Boss : NetworkBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        
         if(Health >=0 ) { BossOver(); }
         MovementOfEnemyShip();
         if(damageTaken >= 40)
         {
-            ShootBullet();
             damageTaken = 0f;
             ForceFieldOn();
+        }
+        else
+        {
+            ShootBullet();
         }
         if (!forceFieldOn) return;
         forceFieldTimer -= Time.fixedDeltaTime;
@@ -53,7 +55,7 @@ public class Boss : NetworkBehaviour
     #region Multiplayer Stuff
 
     [ServerRpc(RequireOwnership =false)]
-    void Death()
+    void DeathServerRpc()
     {
         gameObject.GetComponent<NetworkObject>().Despawn(true);
     }
@@ -112,12 +114,17 @@ public class Boss : NetworkBehaviour
     void BossOver()
     {
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
-            Death();
-        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            DeathServerRpc();
+            // Game Won Rpcs For All PLayers 
+        }
+        else if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             Destroy(gameObject);
+            // Game Won Screen For Player 
         }
 
+       
     }
 
     #endregion

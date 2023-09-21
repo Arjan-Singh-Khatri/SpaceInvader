@@ -18,6 +18,7 @@ public class EnemyManager : NetworkBehaviour
     private int waveValue = 0;
     private int waveNumber = 0;
     private bool enemiesLeft;
+    private bool bossPhase = false;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,92 +28,45 @@ public class EnemyManager : NetworkBehaviour
     void FixedUpdate()
     {
         #region Old Horrible Looking code
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer && GameStateManager.Instance.currentGameState == GameState.allPlayersReady)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
         {
-            #region IsMUltiplayer And Server
             if (waveNumber == 3)
             {
                 InstantiateBoss();
-                gameObject.SetActive(false);
             }
             else
             {
                 if (enemiesLeft)
                 {
-                    instantiateTimer -= Time.fixedDeltaTime;
-                    if (instantiateTimer <= 0)
-                    {
-                        instantiateTimer = 4f;
-                        if (EnemiesListTospwan.Count > 0)
-                        {
+                    SpawnEnemies();
 
-                            GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
-                            EnemiesListTospwan.RemoveAt(0);
-                            spawnedObject = enemy.GetComponent<NetworkObject>();
-                            spawnedObject.Spawn(true);
-
-                        }
-                        else
-                            if (!CheckIfEnemyleft()) enemiesLeft = false;
-                    }
                 }
                 else
                 {
+                    WaitForEnemyToSpawn();
 
-                    waveIntervalTimer -= Time.fixedDeltaTime;
-                    if (waveIntervalTimer <= 0)
-                    {
-                        ++waveNumber;
-                        //Events.instance.waveDelegate(waveNumber);
-                        waveValue = waveNumber * 10 + 5;
-                        waveIntervalTimer = 5f;
-                        GenerateEnemies();
-                        enemiesLeft = true;
-                    }
                 }
             }
-
-            #endregion
+            
         }
-        else if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        else
         {
             if (waveNumber == 3)
             {
                 InstantiateBoss();
-                gameObject.SetActive(false);
+                bossPhase = true;
             }
             else
             {
                 if (enemiesLeft)
                 {
-                    instantiateTimer -= Time.fixedDeltaTime;
-                    if (instantiateTimer <= 0)
-                    {
-                        instantiateTimer = 4f;
-                        if (EnemiesListTospwan.Count > 0)
-                        {
+                    SpawnEnemies();
 
-                            GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
-                            EnemiesListTospwan.RemoveAt(0);
-
-                        }
-                        else
-                            if (!CheckIfEnemyleft()) enemiesLeft = false;
-                    }
                 }
                 else
                 {
+                    WaitForEnemyToSpawn();
 
-                    waveIntervalTimer -= Time.fixedDeltaTime;
-                    if (waveIntervalTimer <= 0)
-                    {
-                        ++waveNumber;
-                        Events.instance.waveDelegate(waveNumber);
-                        waveValue = waveNumber * 10 + 5;
-                        waveIntervalTimer = 5f;
-                        GenerateEnemies();
-                        enemiesLeft = true;
-                    }
                 }
             }
         }
@@ -121,7 +75,71 @@ public class EnemyManager : NetworkBehaviour
     }
 
 
-    #region New
+    #region Required Functions 
+
+    void EnemiesSpawnForBossPhase()
+    {
+        
+    }
+
+    void WaitForEnemyToSpawn()
+    {
+        waveIntervalTimer -= Time.fixedDeltaTime;
+        if (waveIntervalTimer <= 0)
+        {
+            if (bossPhase)
+            {
+                ++waveNumber;
+                //Events.instance.waveDelegate(waveNumber);
+                waveValue = waveNumber *2;
+                waveIntervalTimer = 5f;
+                GenerateEnemies();
+                enemiesLeft = true;
+            }
+            else
+            {
+                ++waveNumber;
+                //Events.instance.waveDelegate(waveNumber);
+                waveValue = waveNumber * 10 +5;
+                waveIntervalTimer = 5f;
+                GenerateEnemies();
+                enemiesLeft = true;
+            }
+            
+        }
+    }
+
+    void SpawnEnemies()
+    {
+
+        instantiateTimer -= Time.fixedDeltaTime;
+        if (instantiateTimer <= 0)
+        {
+            instantiateTimer = 4f;
+            if (EnemiesListTospwan.Count > 0)
+            {
+                InstantiateEnemies();
+            }
+            else
+                if (!CheckIfEnemyleft()) enemiesLeft = false;
+        }
+    }
+
+    void InstantiateEnemies()
+    {
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
+            enemy.GetComponent<NetworkObject>().Spawn(true);
+            EnemiesListTospwan.RemoveAt(0);
+        }
+        else
+        {
+            GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
+            EnemiesListTospwan.RemoveAt(0);
+        }
+    }
+
     bool CheckIfEnemyleft()
     {
         if (GameObject.FindWithTag("Enemy") == null)
@@ -156,7 +174,14 @@ public class EnemyManager : NetworkBehaviour
     #region BossPhase
     private void InstantiateBoss()
     {
-        Instantiate(bossPrefab,bossLocation.position,Quaternion.identity);
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
+            instantiatesBoss.GetComponent<NetworkObject>().Spawn(true);
+
+        }
+        else 
+            Instantiate(bossPrefab,bossLocation.position,Quaternion.identity);
     }
 
     #endregion
