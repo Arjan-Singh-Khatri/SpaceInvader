@@ -27,8 +27,11 @@ public class SpaceShipManager : NetworkBehaviour
 
     private void Start()
     {
-        PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
-        playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
+            playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
+        }
     }
 
     void Update()

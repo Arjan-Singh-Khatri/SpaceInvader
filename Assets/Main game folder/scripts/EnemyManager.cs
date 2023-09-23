@@ -16,7 +16,7 @@ public class EnemyManager : NetworkBehaviour
     private NetworkObject spawnedObject;
     private List<GameObject> EnemiesListTospwan = new();
     private int waveValue = 0;
-    private int waveNumber = 0;
+    private int waveNumber = 3;
     private bool enemiesLeft;
     private bool bossPhase = false;
     // Start is called before the first frame update
@@ -33,6 +33,7 @@ public class EnemyManager : NetworkBehaviour
             if (waveNumber == 3)
             {
                 InstantiateBoss();
+                waveNumber++;
             }
             else
             {
@@ -49,12 +50,13 @@ public class EnemyManager : NetworkBehaviour
             }
             
         }
-        else
+        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             if (waveNumber == 3)
             {
                 InstantiateBoss();
                 bossPhase = true;
+                waveNumber++;
             }
             else
             {
@@ -174,14 +176,17 @@ public class EnemyManager : NetworkBehaviour
     #region BossPhase
     private void InstantiateBoss()
     {
-        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
             instantiatesBoss.GetComponent<NetworkObject>().Spawn(true);
 
         }
-        else 
-            Instantiate(bossPrefab,bossLocation.position,Quaternion.identity);
+        else
+        {
+            
+            GameObject instantiatedBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
+        }
     }
 
     #endregion

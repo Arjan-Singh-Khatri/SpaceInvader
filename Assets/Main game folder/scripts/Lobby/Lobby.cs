@@ -30,11 +30,15 @@ public class Lobby : NetworkBehaviour
     private Unity.Services.Lobbies.Models.Lobby joinedLobby;
     private float hearthBeatTimer;
     private float listLobbyTimer;
-    // Start is called before the first frame update
-    void Start()
+
+    private void Awake()
     {
         instance = this;
         DontDestroyOnLoad(gameObject);
+    }
+    // Start is called before the first frame update
+    void Start()
+    {
         InitializeUnityAuthentication();
     }
 
@@ -153,7 +157,8 @@ public class Lobby : NetworkBehaviour
             NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(new RelayServerData (allocation,"dtls"));
 
             MultiplayerManager.instance.StartTheHost();
-            NetworkManager.SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
+            //
+            NetworkManager.Singleton.SceneManager.LoadScene("CharacterSelect", LoadSceneMode.Single);
         }
         catch(LobbyServiceException e)
         {

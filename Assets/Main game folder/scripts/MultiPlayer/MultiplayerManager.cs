@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using UnityEditor.Build;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,7 +20,7 @@ public class MultiplayerManager : NetworkBehaviour
     public event EventHandler onFailedToJoinGame;
     public event EventHandler onPlayerDataListChange;
 
-    [SerializeField]private NetworkList<PlayerData> playerDatanNetworkListSO;
+    [SerializeField]private NetworkList<PlayerData> playerDataNetworkListSO;
     [SerializeField]private List<Color> playerColorList;
 
     private string playerName;  
@@ -33,8 +32,8 @@ public class MultiplayerManager : NetworkBehaviour
         playerPauseDictionary = new Dictionary<ulong, bool>();
         playerDeathDictionary = new Dictionary<ulong, bool>();
 
-        playerDatanNetworkListSO = new NetworkList<PlayerData>();
-        playerDatanNetworkListSO.OnListChanged += PlayerDatanNetworkListSO_OnListChanged;
+        playerDataNetworkListSO = new NetworkList<PlayerData>();
+        playerDataNetworkListSO.OnListChanged += PlayerDatanNetworkListSO_OnListChanged;
 
         playerName = PlayerPrefs.GetString(PLAYER_PREF_PLAYER_NAME_MULTIPLAYER,"Player Name " +  UnityEngine.Random.Range(100, 1000));
         DontDestroyOnLoad(gameObject);
@@ -75,16 +74,17 @@ public class MultiplayerManager : NetworkBehaviour
         {
             NetworkManager.Singleton.OnClientDisconnectCallback += On_Disconnect_Local_Player;
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
-            NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
+            
         }
     }
 
     private void NetworkManager_OnClientConnectedCallback(ulong clientId)
     {
-        playerDatanNetworkListSO.Add(new PlayerData
+        playerDataNetworkListSO.Add(new PlayerData
         {
             clientId = clientId,
         });
+        Debug.Log("Count : " + playerDataNetworkListSO.Count);
     }
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
@@ -103,6 +103,7 @@ public class MultiplayerManager : NetworkBehaviour
     public void StartTheHost()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += NetworkManagr_ConnectionApprovalCallBack;
+        NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_OnClientConnectedCallback;
         NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_Server_OnClientDisconnectCallback;
         NetworkManager.Singleton.OnClientConnectedCallback += NetworkManager_Server_OnClientConnectedCallback;
         NetworkManager.StartHost();
@@ -110,17 +111,17 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void NetworkManager_Server_OnClientConnectedCallback(ulong obj)
     {
-        SetPlayerServerRpc(GetPlayerName());
+        SetPlayerNameServerRpc(GetPlayerName());
     }
 
     private void NetworkManager_Server_OnClientDisconnectCallback(ulong clientId)
     {
-        for(int i = 0; i < playerDatanNetworkListSO.Count ; i++)
+        for(int i = 0; i < playerDataNetworkListSO.Count ; i++)
         {
-            PlayerData playerData = playerDatanNetworkListSO[i];
+            PlayerData playerData = playerDataNetworkListSO[i];
             if(clientId == playerData.clientId)
             {
-                playerDatanNetworkListSO.RemoveAt(i);
+                playerDataNetworkListSO.RemoveAt(i);
             }
         }
     }
@@ -156,17 +157,18 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void NetworkManager_Client_OnClientConnectedCallback(ulong clientID)
     {
-        SetPlayerServerRpc(GetPlayerName());
+        SetPlayerNameServerRpc(GetPlayerName());
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void SetPlayerServerRpc(string playerName ,ServerRpcParams rpcParams = default)
+    void SetPlayerNameServerRpc(string playerName ,ServerRpcParams rpcParams = default)
     {
         int playerDataIndex = GetPlayerDataIndexFromClientId(rpcParams.Receive.SenderClientId);
-        PlayerData playerData = playerDatanNetworkListSO[playerDataIndex];
+       
+        PlayerData playerData = playerDataNetworkListSO[playerDataIndex];
         playerData.playerName = playerName;
 
-        playerDatanNetworkListSO[playerDataIndex] = playerData;
+        playerDataNetworkListSO[playerDataIndex] = playerData;
     }
 
     private void NetworkManager_Client_OnClientDisconnectCallback(ulong clientID)
@@ -352,28 +354,22 @@ public class MultiplayerManager : NetworkBehaviour
     #endregion
 
 
-    private void OnDestroy()
-    {
-        Events.instance.CallToPauseGameMulti -= CallRpcToPauseGame;
-        Events.instance.CallToUnPauseGameMulti -= CallRpcToUnPauseGame;
-        Events.instance.playerDeath -= PlayerDeathRpcCall;
-        //Events.instance.waveDelegate -= CallWaveUIRpc;
-    }
+
 
     #region CharacterSelect
     
     public bool IsPlayerIndexConnected(int playerIndex)
     {
-        return playerIndex <  playerDatanNetworkListSO.Count;
+        return playerIndex <  playerDataNetworkListSO.Count;
     }
     public PlayerData GetPlayerDataFromPlayerIndex(int playerIndex)
     {
-        return playerDatanNetworkListSO[playerIndex];   
+        return playerDataNetworkListSO[playerIndex];   
     }
 
     public PlayerData GetPlayerDataFromClientId(ulong ClientID)
     {
-        foreach(PlayerData data in playerDatanNetworkListSO)
+        foreach(PlayerData data in playerDataNetworkListSO)
         {
             if(data.clientId == ClientID)
             {
@@ -390,9 +386,9 @@ public class MultiplayerManager : NetworkBehaviour
 
     public int GetPlayerDataIndexFromClientId(ulong ClientID)
     {
-        for(int i =0; i < playerDatanNetworkListSO.Count; i++)
+        for(int i =0; i < playerDataNetworkListSO.Count; i++)
         {
-            if (playerDatanNetworkListSO[i].clientId == ClientID)
+            if (playerDataNetworkListSO[i].clientId == ClientID)
             {
                 return i;
             }
@@ -400,4 +396,12 @@ public class MultiplayerManager : NetworkBehaviour
         return -1;
     }
     #endregion
+
+    private void OnDestroy()
+    {
+        Events.instance.CallToPauseGameMulti -= CallRpcToPauseGame;
+        Events.instance.CallToUnPauseGameMulti -= CallRpcToUnPauseGame;
+        Events.instance.playerDeath -= PlayerDeathRpcCall;
+        //Events.instance.waveDelegate -= CallWaveUIRpc;
+    }
 }

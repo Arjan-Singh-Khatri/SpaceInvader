@@ -59,7 +59,7 @@ public class EnemyB : Enemy
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             shootTimer -= Time.deltaTime;
-            Movement(player, speed);
+            Movement(playerForTracking, speed);
             if (shootTimer <= 0)
             {
                 Shooting(ref shootingPoint, bulletPrefab);

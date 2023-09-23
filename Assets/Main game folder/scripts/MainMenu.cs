@@ -310,7 +310,8 @@ public class MainMenu : NetworkBehaviour
     #endregion
 
 
-    private void OnDestroy()
+
+    private new void OnDestroy() 
     {
         Events.instance.playerPanelToggleOn -= PlayerPanelToggleOn;
         //Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;

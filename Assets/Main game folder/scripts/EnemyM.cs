@@ -68,7 +68,7 @@ public class EnemyM : Enemy
             shootTimer -= Time.deltaTime;
             if (playerForTracking == null)
             {
-                Debug.Log("A");
+                
                 CallServerToGetClientListServerRpc();
             }
 

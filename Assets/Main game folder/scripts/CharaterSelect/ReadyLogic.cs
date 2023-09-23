@@ -10,10 +10,11 @@ public class ReadyLogic : NetworkBehaviour
     public event EventHandler onPlayerReadyChange;
 
     Dictionary<ulong, bool> playerReadyDictionary;
-    private void Start()
+    private void Awake()
     {
-        playerReadyDictionary = new Dictionary<ulong, bool>();
         instance = this;
+        playerReadyDictionary = new Dictionary<ulong, bool>();
+        
     }
 
     public void CallPlayerReadyRpc()
