@@ -33,6 +33,7 @@ public class CharacterSelect : MonoBehaviour
     {
         if(MultiplayerManager.instance.IsPlayerIndexConnected(playerIndex))
         {
+            
             Show();
             PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromPlayerIndex(playerIndex);
 

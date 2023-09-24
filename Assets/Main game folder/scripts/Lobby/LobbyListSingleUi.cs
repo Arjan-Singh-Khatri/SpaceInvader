@@ -20,6 +20,7 @@ public class LobbyListSingleUi : MonoBehaviour
     public void SetLobby(Unity.Services.Lobbies.Models.Lobby lobby)
     {
         this.lobby = lobby;
+        lobbyNameText.text = lobby.Name;
     }
     
 }

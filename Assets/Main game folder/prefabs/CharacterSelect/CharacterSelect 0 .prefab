@@ -485,7 +485,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52641e17ce9d6014dbf5aa4c02f1678e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerIndex: 1
+  playerIndex: 0
   readyGameobject: {fileID: 2271496137270722029}
   playerName: {fileID: 1363877598}
   playerVisual: {fileID: 3588301739801579644}

@@ -25,8 +25,9 @@ public class ReadyLogic : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void LocalPlayerReadyServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        SetPlayerReadyClientRpc(serverRpcParams.Receive.SenderClientId);
+
         playerReadyDictionary[serverRpcParams.Receive.SenderClientId] = true;
+        SetPlayerReadyClientRpc(serverRpcParams.Receive.SenderClientId);
         bool allClientsReady = true;
         foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
         {
@@ -45,11 +46,6 @@ public class ReadyLogic : NetworkBehaviour
         
     }
 
-    [ClientRpc]
-    void GameStateToggleClientRpc(ClientRpcParams clientRpcParams)
-    {
-        GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
-    }
 
     [ClientRpc]
     void SetPlayerReadyClientRpc(ulong clientId)
@@ -60,6 +56,6 @@ public class ReadyLogic : NetworkBehaviour
 
     public bool IsPlayerReady(ulong clientID)
     {
-        return playerReadyDictionary[clientID] && playerReadyDictionary.ContainsKey(clientID) ;
+        return playerReadyDictionary.ContainsKey(clientID) &&  playerReadyDictionary[clientID];
     }
 }

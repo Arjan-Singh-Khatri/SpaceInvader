@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class EnemyB : Enemy
@@ -91,41 +92,31 @@ public class EnemyB : Enemy
     [ServerRpc(RequireOwnership =false)]
     void CallServerToGetClientListServerRpc()
     {
-        GetClientListClientRpc();
+
+        var randomClientID = Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
+        if (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
+        {
+            foreach (var client in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject != null)
+                    GetClientListClientRpc(client);
+            }
+        }else
+        {
+            GetClientListClientRpc((ulong)randomClientID);
+        }
+        
     }
 
     [ClientRpc]
-    void GetClientListClientRpc()
+    void GetClientListClientRpc(ulong clienID)
     {
-        AssignMultiplayerPlayerObject();
+        AssignMultiplayerPlayerObject(clienID);
     }
 
-    void AssignMultiplayerPlayerObject()
+    void AssignMultiplayerPlayerObject(ulong clienID)
     {
-        var randomClientID = Random.Range(0,NetworkManager.Singleton.ConnectedClientsList.Count);
-        if (isFirst)
-        {
-            playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
-            isFirst = false;
-        }
-
-        else
-        {
-            //while (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
-            //{
-            //    randomClientID =Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
-            //}
-            foreach(var client in NetworkManager.Singleton.ConnectedClientsIds)
-            {
-                if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject == null)
-                    continue;
-                else
-                    playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
-            }
-
-            
-        }
-
+        playerForTracking = NetworkManager.Singleton.ConnectedClients[clienID].PlayerObject.gameObject;
     }
 
     [ServerRpc]

@@ -82,36 +82,33 @@ public class EnemyS : Enemy
     [ServerRpc(RequireOwnership = false)]
     void CallServerToGetClientListServerRpc()
     {
-        GetClientListClientRpc();
-    }
 
-    [ClientRpc]
-    void GetClientListClientRpc()
-    {
-        AssignMultiplayerPlayerObject();
-    }
-
-    void AssignMultiplayerPlayerObject()
-    {
         var randomClientID = Random.Range(0, NetworkManager.Singleton.ConnectedClientsList.Count);
-        if (isFirst)
-        {
-            playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
-            isFirst = false;
-        }
-
-        else
+        if (NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject == null)
         {
             foreach (var client in NetworkManager.Singleton.ConnectedClientsIds)
             {
-                if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject == null)
-                    continue;
-                else
-                    playerForTracking = NetworkManager.Singleton.ConnectedClients[(ulong)randomClientID].PlayerObject.gameObject;
+                if (NetworkManager.Singleton.ConnectedClients[client].PlayerObject != null)
+                    GetClientListClientRpc(client);
             }
         }
-
+        else
+        {
+            GetClientListClientRpc((ulong)randomClientID);
+        }
     }
+
+    [ClientRpc]
+    void GetClientListClientRpc(ulong clienID)
+    {
+        AssignMultiplayerPlayerObject(clienID);
+    }
+
+    void AssignMultiplayerPlayerObject(ulong clienID)
+    {
+        playerForTracking = NetworkManager.Singleton.ConnectedClients[clienID].PlayerObject.gameObject;
+    }
+
     [ServerRpc(RequireOwnership = false)]
     void CallToShootServerRpc()
     {

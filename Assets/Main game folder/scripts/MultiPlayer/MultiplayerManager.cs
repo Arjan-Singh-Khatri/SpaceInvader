@@ -34,6 +34,7 @@ public class MultiplayerManager : NetworkBehaviour
 
         playerDataNetworkListSO = new NetworkList<PlayerData>();
         playerDataNetworkListSO.OnListChanged += PlayerDatanNetworkListSO_OnListChanged;
+        
 
         playerName = PlayerPrefs.GetString(PLAYER_PREF_PLAYER_NAME_MULTIPLAYER,"Player Name " +  UnityEngine.Random.Range(100, 1000));
         DontDestroyOnLoad(gameObject);
@@ -52,8 +53,12 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void PlayerDatanNetworkListSO_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
     {
+        Debug.Log("Changed : ");
         onPlayerDataListChange?.Invoke(this, EventArgs.Empty);
+        
     }
+
+ 
 
     // Start is called before the first frame update
     void Start()
@@ -84,7 +89,7 @@ public class MultiplayerManager : NetworkBehaviour
         {
             clientId = clientId,
         });
-        Debug.Log("Count : " + playerDataNetworkListSO.Count);
+        
     }
 
     private void SceneManager_OnLoadEventCompleted(string sceneName, UnityEngine.SceneManagement.LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
@@ -381,6 +386,7 @@ public class MultiplayerManager : NetworkBehaviour
 
     public Color GetPlayerColorForPlayer(int colorID)
     {
+        
         return playerColorList[colorID];
     }
 
