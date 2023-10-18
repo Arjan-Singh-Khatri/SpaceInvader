@@ -27,8 +27,6 @@ public class EnemyS : Enemy
     // Start is called before the first frame update
     void Start()
     {
-
-
         animator = GetComponent<Animator>();
         animationClips = animator.runtimeAnimatorController.animationClips;
         foreach (AnimationClip clip in animationClips)
@@ -51,6 +49,8 @@ public class EnemyS : Enemy
         if (GameStateManager.Instance.currentGameState == GameState.gamePaused) return;
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
+            if (playerForTracking == null)
+                return;
             shootTimer -=Time.deltaTime;
             Movement(playerForTracking, speed);
             if (shootTimer <= 0)

@@ -34,6 +34,7 @@ public class SpaceShipManager : NetworkBehaviour
         }
     }
 
+
     void Update()
     {
         horizontal = Input.GetAxis("Horizontal");
@@ -41,7 +42,6 @@ public class SpaceShipManager : NetworkBehaviour
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
         ShootingManagerFunction();
  
-
     }
   
     void HealthManagerFunction()
@@ -69,25 +69,30 @@ public class SpaceShipManager : NetworkBehaviour
     void TakeDamage(int Damage)
     {
         playerHealth -= Damage;
-        if(playerHealth < 0)
+        if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            playerHealth = 0;
-            if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
-            {
+            if(PlayerDead())
                 CallDespwan();
-                Events.instance.playerDeath();
-            }
+            //Call server Rpc to send GameOver or Keep watching panel 
+            Events.instance.playerDeath();
 
-            else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
-            {
-                Events.instance.gameOver();
-                Destroy(gameObject);
-                
-            }
         }
-        if (!IsOwner) return;
-        Events.instance.healthCount(playerHealth);
 
+        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Events.instance.healthCount(playerHealth);
+            if (PlayerDead())
+                Destroy(gameObject);
+            Events.instance.gameOver();
+               
+        }
+    }
+
+    bool PlayerDead()
+    {
+        if (playerHealth <= 0)
+            return true;
+        else return false;
     }
     void CallDespwan()
     {
@@ -106,18 +111,36 @@ public class SpaceShipManager : NetworkBehaviour
 
     void ShootingManagerFunction()
     {
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            if (Input.GetKeyDown(KeyCode.Z) && bulletCount > 0)
+            {
+                if (IsOwner)
+                {
+                    BulletInstantiate();
+                }
+            }
 
-        if (Input.GetKeyDown(KeyCode.Z) && bulletCount > 0)
+            else if (Input.GetKeyDown(KeyCode.X) && missleCount > 0)
+            {
+                if (IsOwner)
+                    MissileInstantiate();
+            }
+        }
+        else
         {
-            if(IsOwner)
+            if (Input.GetKeyDown(KeyCode.Z) && bulletCount > 0)
+            {
                 BulletInstantiate();
+            }
+
+            else if (Input.GetKeyDown(KeyCode.X) && missleCount > 0)
+            {
+                MissileInstantiate();
+            }
         }
-            
-        else if (Input.GetKeyDown(KeyCode.X) && missleCount > 0)
-        {
-            if (IsOwner)
-                MissileInstantiate(); 
-        }
+
+
 
     }
 
@@ -133,7 +156,7 @@ public class SpaceShipManager : NetworkBehaviour
                 bulletCount = 0;
             }
             Events.instance.ammoCount(bulletCount, missleCount);
-        }else
+        }else if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
 
             BulletSpawnServerRpc();
@@ -171,10 +194,10 @@ public class SpaceShipManager : NetworkBehaviour
         }
         else
         {
+            MissileSpawnServerRpc();
             missleCount -= 1;
             if (missleCount < 0)
                 missleCount = 0;
-            MissileSpawnServerRpc();
             Events.instance.ammoCount(bulletCount, missleCount);
         }
     }

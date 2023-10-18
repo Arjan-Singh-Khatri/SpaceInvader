@@ -1,8 +1,5 @@
-using System.Collections;
-using System.Collections.Generic;
+
 using Unity.Netcode;
-using Unity.VisualScripting;
-using UnityEditor.PackageManager;
 using UnityEngine;
 
 public class EnemyB : Enemy
@@ -59,6 +56,8 @@ public class EnemyB : Enemy
         if (GameStateManager.Instance.currentGameState == GameState.gamePaused) return;
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
+            if (playerForTracking == null)
+                return;
             shootTimer -= Time.deltaTime;
             Movement(playerForTracking, speed);
             if (shootTimer <= 0)
@@ -69,7 +68,6 @@ public class EnemyB : Enemy
         }
         else
         {
-            
             if (!IsOwner) return;
             shootTimer -= Time.deltaTime;
             if (playerForTracking == null )

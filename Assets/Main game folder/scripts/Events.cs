@@ -23,8 +23,10 @@ public class Events : MonoBehaviour
     public  HealthCount healthCount;
     public  Action gameOver;
     public  Action playerReady;
-    public  Action gamePausedBySomePlayerMulti;
-    public Action gameUnpausedBySomePlayerMulti;
+
+    public Action GamePausedMultiplayer;
+    public Action GameUnpausedMultiplayer;
+
     public Action CallToPauseGameMulti;
     public Action CallToUnPauseGameMulti;
 

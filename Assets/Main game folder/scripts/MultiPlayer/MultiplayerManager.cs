@@ -13,6 +13,7 @@ public class MultiplayerManager : NetworkBehaviour
 
     Dictionary<ulong, bool> playerPauseDictionary;
     Dictionary<ulong, bool> playerDeathDictionary;
+    private NetworkVariable<bool> isGamePaused = new NetworkVariable<bool>(false);
 
     [SerializeField] private Transform playerPrefab;
 
@@ -63,10 +64,9 @@ public class MultiplayerManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
-        Events.instance.CallToPauseGameMulti += CallRpcToPauseGame;
-        Events.instance.CallToUnPauseGameMulti += CallRpcToUnPauseGame;
         Events.instance.playerDeath += PlayerDeathRpcCall;
+        Events.instance.CallToPauseGameMulti += CallToPauseGame;
+        Events.instance.CallToUnPauseGameMulti += CallToUnpauseGame;
         //Events.instance.waveDelegate += CallWaveUIRpc;
 
     }
@@ -74,12 +74,26 @@ public class MultiplayerManager : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        //
+
+        isGamePaused.OnValueChanged += IsGamePaused_OnValueChanged;
+
         if (IsServer)
         {
             NetworkManager.Singleton.OnClientDisconnectCallback += On_Disconnect_Local_Player;
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
             
+        }
+    }
+
+    private void IsGamePaused_OnValueChanged(bool previousValue, bool newValue)
+    {
+        
+        if (isGamePaused.Value)
+        { 
+            Events.instance.GamePausedMultiplayer();
+        }else
+        {
+            Events.instance.GameUnpausedMultiplayer();
         }
     }
 
@@ -209,7 +223,7 @@ public class MultiplayerManager : NetworkBehaviour
     {
         if(OwnerClientId == clientId)
         {
-            CallRpcToUnPauseGame();
+            UnPauseGameServerRpc();
         }
         if(clientId == NetworkManager.ServerClientId)
         {
@@ -232,7 +246,6 @@ public class MultiplayerManager : NetworkBehaviour
     //Player Death Handling
     void PlayerDeathRpcCall()
     {
-        if (!IsOwner) return;
         LocalPlayerDeathServerRpc();
     }
     [ServerRpc(RequireOwnership =false)]
@@ -283,79 +296,49 @@ public class MultiplayerManager : NetworkBehaviour
     //}
 
     // Functions to call ServerRpc via Events
-    private void CallRpcToPauseGame()
+
+    private void CallToPauseGame()
     {
-        CallToPauseTheGameServerRpc();
+        PauseGameServerRpc();
     }
 
-    private void CallRpcToUnPauseGame()
+    private void CallToUnpauseGame()
     {
-        CallToUnpauseTheGameServerRpc();
+        UnPauseGameServerRpc();
     }
+
     [ServerRpc(RequireOwnership = false)]
-    private void CallToPauseTheGameServerRpc(ServerRpcParams serverRpcParams = default)
+    private void PauseGameServerRpc(ServerRpcParams serverRpcParams = default)
     {
-        bool onePause = false;
         playerPauseDictionary[serverRpcParams.Receive.SenderClientId] = true;
+        TestPausedState();
+    }
+
+    [ServerRpc(RequireOwnership =false)]
+    private void UnPauseGameServerRpc(ServerRpcParams serverRpcParams = default)
+    {
+        playerPauseDictionary[serverRpcParams.Receive.SenderClientId] = false;
+        TestPausedState();
+    }
+
+    private void TestPausedState()
+    {
         foreach(var client in NetworkManager.Singleton.ConnectedClientsIds)
         {
             //even one paused then game paused else not paused 
-            if (playerPauseDictionary[client] && playerPauseDictionary.ContainsKey(client))
+            if (playerPauseDictionary.ContainsKey(client) && playerPauseDictionary[client] )
             {
-                onePause = true;
-                break;
+                // this paused 
+                isGamePaused.Value = true;
+                return;
             }
         }
-        if(onePause)
-        {
-            List<ulong> clientIds = new List<ulong>();
-            foreach(var client in NetworkManager.Singleton.ConnectedClientsIds)
-            {
-                if(client != OwnerClientId)
-                {
-                    clientIds.Add(client);  
-                }
-            }
-            CallToPauseAllClientsCLientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = clientIds } });
-        }
-
+        // all unpaused
+        isGamePaused.Value = false;
+        
 
     }
-    [ServerRpc(RequireOwnership =false)]
-    private void CallToUnpauseTheGameServerRpc(ServerRpcParams serverRpcParams = default)
-    {
 
-        bool allUnpaused = true;
-        playerPauseDictionary[serverRpcParams.Receive.SenderClientId] = false;
-        foreach (var client in NetworkManager.Singleton.ConnectedClientsIds)
-        {
-            //even one paused then game paused else not paused 
-            if (!playerPauseDictionary[client] && !playerPauseDictionary.ContainsKey(client))
-            {
-                allUnpaused = false;
-                break;
-            }
-        }
-
-        if (!allUnpaused)
-        {
-            CallToUnPauseAllClientsClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
-        }
-    }
-    [ClientRpc]
-    private void CallToPauseAllClientsCLientRpc(ClientRpcParams clientRpcParams)
-    {
-        Events.instance.gamePausedBySomePlayerMulti();
-        GameStateManager.Instance.currentGameState = GameState.gamePaused;
-    }
-
-
-    [ClientRpc]
-    private void CallToUnPauseAllClientsClientRpc(ClientRpcParams clientRpcParams)
-    {
-        Events.instance.gameUnpausedBySomePlayerMulti();
-        GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
-    }
     #endregion
 
 
@@ -405,9 +388,10 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void OnDestroy()
     {
-        Events.instance.CallToPauseGameMulti -= CallRpcToPauseGame;
-        Events.instance.CallToUnPauseGameMulti -= CallRpcToUnPauseGame;
+
         Events.instance.playerDeath -= PlayerDeathRpcCall;
         //Events.instance.waveDelegate -= CallWaveUIRpc;
+        Events.instance.CallToPauseGameMulti -= CallToPauseGame;
+        Events.instance.CallToUnPauseGameMulti -= CallToUnpauseGame;
     }
 }

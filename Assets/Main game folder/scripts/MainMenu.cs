@@ -36,12 +36,7 @@ public class MainMenu : NetworkBehaviour
     Vector3 waveTextOgPosition = new Vector3(0,273f, 0);
 
     [Header("Multiplayer  && Game state State")]
-    //[SerializeField] GameObject playerReadyPanel;
-    //[SerializeField] Button ready;
-    //[SerializeField] TextMeshProUGUI waitingForPlayer;
-    //[SerializeField] GameObject multiPlayerPanel;
-    //[SerializeField] Button client;
-    //[SerializeField] Button host;
+
     [SerializeField] GameObject gamePausedBySomePlayerPanel;
 
     [Header("Disconnect && Multiplayer Player Death")]
@@ -58,18 +53,22 @@ public class MainMenu : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        #region events
+
 
         Events.instance.playerPanelToggleOn += PlayerPanelToggleOn;
         //Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
-        Events.instance.gamePausedBySomePlayerMulti += LocalGamePausedBySomePlayer;
-        Events.instance.gameUnpausedBySomePlayerMulti += LocalGameUnPaused;
+
+        Events.instance.GamePausedMultiplayer += GamePausedWaiting;
+        Events.instance.GameUnpausedMultiplayer += GameUnPausedMultiplayer;
+
         Events.instance.gameOver += GameOverUI;
         Events.instance.ammoCount += AmmoCount;
         Events.instance.healthCount += HealthSlider;
         Events.instance.allPlayerDeadUI += AllPlayerDeadUi;
         Events.instance.playerDeathUI += PlayerDeadUi;
         Events.instance.hostDisconnect += HostDisconnectUi;
+
+        #region AddingListeners 
         hostDisconnectMenu.onClick.AddListener(GoToMainMenu);
         allPlayerDeadMenu.onClick.AddListener(GoToMainMenu);
         pause.onClick.AddListener(Pause);
@@ -81,35 +80,10 @@ public class MainMenu : NetworkBehaviour
         bulletLeftText.text = "X" + 25.ToString();
         missileLeftText.text ="X" + 6.ToString();
         mainMenuPlayerDeath.onClick.AddListener(GoToMainMenu);
-        //ready.onClick.AddListener(() =>
-        //{
-        //    Ready();
-        //});
         #endregion
 
-        //#region Netcode UI
-
-
-        //host.onClick.AddListener(() =>
-        //{
-        //    GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
-        //    Events.instance.Host();
-        //    MultiPlayerPanelToggle();
-        //    PlayerReadyPanelToggle();
-
-        //});
-
-        //client.onClick.AddListener(() =>
-        //{
-        //    GameStateManager.Instance.currentGameState = GameState.waitingForPlayers;
-        //    Events.instance.client();
-        //    MultiPlayerPanelToggle();
-        //    PlayerReadyPanelToggle();
-
-        //});
-        //#endregion
     }
-    
+
     // Update is called once per frame
     void Update()
     {
@@ -128,10 +102,6 @@ public class MainMenu : NetworkBehaviour
         }
         //if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         //    multiPlayerPanel.SetActive(false);
-
-        if (!(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)) return;
-        if (!IsOwner) return;
-
 
     }
 
@@ -164,37 +134,7 @@ public class MainMenu : NetworkBehaviour
 
     #endregion
 
-    #region MultiplayerGameStarted
-    //void Ready()
-    //{
-    //    //if (!IsOwner) return;
-    //    ready.gameObject.SetActive(false);
-    //    Events.instance.playerReady();
-    //}
 
-    //void PlayerReadyPanelToggle()
-    //{
-    //    playerReadyPanel.SetActive(true);   
-    //}
-    //void PlayerReadyPanelToggleOff()
-    //{
-    //    playerReadyPanel.SetActive(false);
-    //}
-
-    void LocalGamePausedBySomePlayer()
-    {
-
-        gamePausedBySomePlayerPanel.SetActive(true);
-
-    }
-
-    void LocalGameUnPaused()
-    {
-
-        gamePausedBySomePlayerPanel.SetActive(false);
-
-    }
-    #endregion
 
     #region Menu UI
     //private void MultiPlayerPanelToggle()
@@ -221,8 +161,10 @@ public class MainMenu : NetworkBehaviour
         pauseMenuPanel.SetActive(false);
         LocalGamePaused = false;
 
-        if(GameStateManager.Instance.currentGameMode== GameMode.MultiPlayer && IsOwner)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+        {
             Events.instance.CallToUnPauseGameMulti();
+        }
         Time.timeScale = 1f;
     }
 
@@ -235,24 +177,36 @@ public class MainMenu : NetworkBehaviour
     {
         pauseMenuPanel.SetActive(true);
         LocalGamePaused = true;
+
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
-            Events.instance.CallToPauseGameMulti();
-        Time.timeScale = 0f;
-
-    }
-
-
-
-    private void GameOver()
-    {
-        if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
-            gameOverPanel.SetActive(true);
-            LocalGamePaused = true;
-            Time.timeScale = 0f;
+            Events.instance.CallToPauseGameMulti();
         }
 
+        if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Time.timeScale = 0; 
+        }
     }
+
+
+    private void GamePausedWaiting()
+    {
+        GameStateManager.Instance.currentGameState = GameState.gamePaused;
+        gamePausedBySomePlayerPanel.SetActive(true);
+        Time.timeScale = 0f;
+    }
+
+    private void GameUnPausedMultiplayer()
+    {
+        Time.timeScale = 1f;
+        GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
+        gamePausedBySomePlayerPanel.SetActive(false);
+        
+    }
+
+
+
     #endregion
 
     #region Player UI
@@ -284,7 +238,7 @@ public class MainMenu : NetworkBehaviour
     void HealthSlider(int health)
     {
         healthSlider.value = health;
-        Debug.Log(healthSlider.value);
+
     }
 
     void PlayerPanelToggleOn()
@@ -315,8 +269,9 @@ public class MainMenu : NetworkBehaviour
     {
         Events.instance.playerPanelToggleOn -= PlayerPanelToggleOn;
         //Events.instance.playerReadyPanelToggleOff += PlayerReadyPanelToggleOff;
-        Events.instance.gamePausedBySomePlayerMulti -= LocalGamePausedBySomePlayer;
-        Events.instance.gameUnpausedBySomePlayerMulti -= LocalGameUnPaused;
+
+        Events.instance.GamePausedMultiplayer -= GamePausedWaiting;
+        Events.instance.GameUnpausedMultiplayer -= GameUnPausedMultiplayer;
         Events.instance.gameOver -= GameOverUI;
         Events.instance.ammoCount -= AmmoCount;
         Events.instance.healthCount -= HealthSlider;

@@ -53,6 +53,8 @@ public class EnemyM : Enemy
         if (GameStateManager.Instance.currentGameState == GameState.gamePaused) return;
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
+            if (playerForTracking == null)
+                return;
             shootTimer -= Time.deltaTime;
             Movement(playerForTracking, speed);
             if (shootTimer <= 0)
