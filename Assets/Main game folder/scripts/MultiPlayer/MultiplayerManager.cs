@@ -24,7 +24,8 @@ public class MultiplayerManager : NetworkBehaviour
     [SerializeField]private NetworkList<PlayerData> playerDataNetworkListSO;
     [SerializeField]private List<Color> playerColorList;
 
-    private string playerName;  
+    private string playerName;
+    private bool autoTestPause = false;
 
     private void Awake()
     {
@@ -71,17 +72,35 @@ public class MultiplayerManager : NetworkBehaviour
 
     }
 
+    private void LateUpdate()
+    {
+        if (autoTestPause)
+        {
+            autoTestPause = false;
+            TestPausedState();
+        }
+    }
+
 
     public override void OnNetworkSpawn()
     {
 
         isGamePaused.OnValueChanged += IsGamePaused_OnValueChanged;
 
+        NetworkManager.Singleton.OnClientDisconnectCallback += NetworkManager_OnClientDisconnectCallback;
         if (IsServer)
         {
-            NetworkManager.Singleton.OnClientDisconnectCallback += On_Disconnect_Local_Player;
+            NetworkManager.Singleton.OnClientDisconnectCallback += On_Disconnect_Local_PlayerCallback;
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManager_OnLoadEventCompleted;
             
+        }
+    }
+
+    private void NetworkManager_OnClientDisconnectCallback(ulong clientID)
+    {
+        if(clientID == NetworkManager.ServerClientId) 
+        {
+            Events.instance.hostDisconnect();
         }
     }
 
@@ -89,7 +108,8 @@ public class MultiplayerManager : NetworkBehaviour
     {
         
         if (isGamePaused.Value)
-        { 
+        {
+            Debug.Log(isGamePaused.Value);
             Events.instance.GamePausedMultiplayer();
         }else
         {
@@ -196,52 +216,15 @@ public class MultiplayerManager : NetworkBehaviour
     }
     #endregion
 
-    //#region Wave
-
-    //void CallWaveUIRpc(int waveNumber)
-    //{
-    //    WaveUIServerRpc(waveNumber);
-    //}
-
-    //[ServerRpc(RequireOwnership =false)]
-    //void WaveUIServerRpc(int waveNumber,ServerRpcParams serverRpcParams = default)
-    //{
-    //    WaveUIClientRpc(waveNumber, new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
-    //}
-
-    //[ClientRpc]
-    //void WaveUIClientRpc(int waveNumber,ClientRpcParams clientRpcParams)
-    //{
-    //    Events.instance.waveDelegate(waveNumber);
-    //}
-    //#endregion
 
     #region Disconnect Handel and Player Death Online
     //Disconnect handling
 
-    private void On_Disconnect_Local_Player(ulong clientId)
+    private void On_Disconnect_Local_PlayerCallback(ulong clientId)
     {
-        if(OwnerClientId == clientId)
-        {
-            UnPauseGameServerRpc();
-        }
-        if(clientId == NetworkManager.ServerClientId)
-        {
-            HostDisconnectServerRpc();
-        }
+        autoTestPause = true;
     }
 
-    [ServerRpc(RequireOwnership =false)]
-    void HostDisconnectServerRpc(ServerRpcParams serverRpcParams= default)
-    {
-        HostDisconnectClientRpc(new ClientRpcParams {Send= new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
-    }
-
-    [ClientRpc]
-    void HostDisconnectClientRpc(ClientRpcParams clientRpcParams)
-    {
-        Events.instance.hostDisconnect();
-    }
 
     //Player Death Handling
     void PlayerDeathRpcCall()

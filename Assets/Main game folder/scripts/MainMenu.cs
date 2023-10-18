@@ -134,7 +134,7 @@ public class MainMenu : NetworkBehaviour
 
     #endregion
 
-
+    
 
     #region Menu UI
     //private void MultiPlayerPanelToggle()
@@ -161,7 +161,7 @@ public class MainMenu : NetworkBehaviour
         pauseMenuPanel.SetActive(false);
         LocalGamePaused = false;
 
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             Events.instance.CallToUnPauseGameMulti();
         }
@@ -178,7 +178,7 @@ public class MainMenu : NetworkBehaviour
         pauseMenuPanel.SetActive(true);
         LocalGamePaused = true;
 
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             Events.instance.CallToPauseGameMulti();
         }
