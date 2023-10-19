@@ -129,7 +129,7 @@ public class MainMenu : NetworkBehaviour
     void AllPlayerDeadUi()
     {
         playerDeadUiMultiplayer.SetActive(false);
-        allPlayerDeadPanel.SetActive(true);
+        GameOverUI();
     }
 
     #endregion
@@ -221,16 +221,12 @@ public class MainMenu : NetworkBehaviour
     {
         if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            if (IsOwner) 
-            {
-                gameOverPanel.SetActive(true);
-            }
+            gameOverPanel.SetActive(true);
             
         }
         else
         {
-            gameOverPanel.SetActive(true);
-            Time.timeScale = 0f;
+            gameOverPanel.SetActive(true); 
         }
 
     }

@@ -32,7 +32,7 @@ public class Events : MonoBehaviour
 
     public Action playerReadyPanelToggleOff;
     public Action playerPanelToggleOn;
-    public Action playerDeath;
+    public Action playerDeathListAdd;
     public Action playerDeathUI;
     public Action allPlayerDeadUI;
     public Action hostDisconnect;

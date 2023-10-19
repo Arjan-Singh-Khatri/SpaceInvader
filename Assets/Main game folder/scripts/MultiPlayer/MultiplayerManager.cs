@@ -55,7 +55,7 @@ public class MultiplayerManager : NetworkBehaviour
 
     private void PlayerDatanNetworkListSO_OnListChanged(NetworkListEvent<PlayerData> changeEvent)
     {
-        Debug.Log("Changed : ");
+        
         onPlayerDataListChange?.Invoke(this, EventArgs.Empty);
         
     }
@@ -65,7 +65,7 @@ public class MultiplayerManager : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        Events.instance.playerDeath += PlayerDeathRpcCall;
+        Events.instance.playerDeathListAdd += PlayerDeathRpcCall;
         Events.instance.CallToPauseGameMulti += CallToPauseGame;
         Events.instance.CallToUnPauseGameMulti += CallToUnpauseGame;
         //Events.instance.waveDelegate += CallWaveUIRpc;
@@ -109,7 +109,7 @@ public class MultiplayerManager : NetworkBehaviour
         
         if (isGamePaused.Value)
         {
-            Debug.Log(isGamePaused.Value);
+            
             Events.instance.GamePausedMultiplayer();
         }else
         {
@@ -231,14 +231,14 @@ public class MultiplayerManager : NetworkBehaviour
     {
         LocalPlayerDeathServerRpc();
     }
-    [ServerRpc(RequireOwnership =false)]
-    void LocalPlayerDeathServerRpc(ServerRpcParams serverRpcParams= default)
+    [ServerRpc(RequireOwnership = false)]
+    void LocalPlayerDeathServerRpc(ServerRpcParams serverRpcParams = default)
     {
         playerDeathDictionary[serverRpcParams.Receive.SenderClientId] = true;
         bool allClientDead = true;
-        foreach(var clientID in NetworkManager.Singleton.ConnectedClientsIds)
+        foreach (var clientID in NetworkManager.Singleton.ConnectedClientsIds)
         {
-            if (!playerDeathDictionary.ContainsKey(clientID) || !playerDeathDictionary[clientID]) 
+            if (!playerDeathDictionary.ContainsKey(clientID) || !playerDeathDictionary[clientID])
             {
                 allClientDead = false;
                 break;
@@ -248,24 +248,14 @@ public class MultiplayerManager : NetworkBehaviour
         {
             AllPlayerDeathClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
         }
-        else
-            LocalPlayerDeadClientRpc();
     }
+
     [ClientRpc]
     void AllPlayerDeathClientRpc(ClientRpcParams clientRpcParams)
     {
-        // Event That activates All PlayerDead Ui - Host Stop - all TimeScale = 0 
         Events.instance.allPlayerDeadUI();
-        GameStateManager.Instance.currentGamePhase = GamePhase.allPlayersDead;
-        Time.timeScale = 0f;
+    }
 
-    }
-    [ClientRpc]
-    void LocalPlayerDeadClientRpc()
-    {
-        // Event That Activates Continue Watching or Quit Ui 
-        Events.instance.playerDeathUI();
-    }
     #endregion
 
     #region Ready and Pause
@@ -372,7 +362,7 @@ public class MultiplayerManager : NetworkBehaviour
     private void OnDestroy()
     {
 
-        Events.instance.playerDeath -= PlayerDeathRpcCall;
+        Events.instance.playerDeathListAdd -= PlayerDeathRpcCall;
         //Events.instance.waveDelegate -= CallWaveUIRpc;
         Events.instance.CallToPauseGameMulti -= CallToPauseGame;
         Events.instance.CallToUnPauseGameMulti -= CallToUnpauseGame;

@@ -71,10 +71,13 @@ public class SpaceShipManager : NetworkBehaviour
         playerHealth -= Damage;
         if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            if(PlayerDead())
+            if (PlayerDead())
+            {
                 CallDespwan();
-            //Call server Rpc to send GameOver or Keep watching panel 
-            Events.instance.playerDeath();
+                //Call server Rpc to send GameOver or Keep watching panel 
+                Events.instance.playerDeathUI();
+                Events.instance.playerDeathListAdd();
+            }
 
         }
 
@@ -82,11 +85,14 @@ public class SpaceShipManager : NetworkBehaviour
         {
             Events.instance.healthCount(playerHealth);
             if (PlayerDead())
+            {
                 Destroy(gameObject);
-            Events.instance.gameOver();
+                Events.instance.gameOver();
+            }
                
         }
     }
+    
 
     bool PlayerDead()
     {
@@ -101,11 +107,7 @@ public class SpaceShipManager : NetworkBehaviour
     [ServerRpc(RequireOwnership =false)]
     void DesapwnServerRpc(uint clientId)
     {
-        if(clientId == (uint)NetworkManager.ServerClientId)
-        {
-            NetworkManager.Singleton.Shutdown();
-
-        }
+        
         gameObject.GetComponent<NetworkObject>().Despawn();
     }
 
