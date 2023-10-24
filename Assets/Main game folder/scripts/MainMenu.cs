@@ -48,6 +48,9 @@ public class MainMenu : NetworkBehaviour
 
     [SerializeField] GameObject hostDisconnectUI;
     [SerializeField] Button hostDisconnectMenu;
+
+    [Header("GameOver Boss Dead")]
+    [SerializeField] private GameObject gameWonPanel;
     
 
     // Start is called before the first frame update
@@ -60,6 +63,8 @@ public class MainMenu : NetworkBehaviour
 
         Events.instance.GamePausedMultiplayer += GamePausedWaiting;
         Events.instance.GameUnpausedMultiplayer += GameUnPausedMultiplayer;
+
+        Events.instance.GameWonUI += GameWon;
 
         Events.instance.gameOver += GameOverUI;
         Events.instance.ammoCount += AmmoCount;
@@ -104,6 +109,14 @@ public class MainMenu : NetworkBehaviour
         //    multiPlayerPanel.SetActive(false);
 
     }
+
+    #region 
+    void GameWon()
+    {
+        gameWonPanel.SetActive(true);
+    }
+
+    #endregion
 
     #region Player Death and Disconnect 
 

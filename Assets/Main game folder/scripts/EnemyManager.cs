@@ -17,95 +17,119 @@ public class EnemyManager : NetworkBehaviour
     private List<GameObject> EnemiesListTospwan = new();
     private int waveValue = 0;
     private int waveNumber = 3;
-    private bool enemiesLeft;
+    private bool enemiesLeftToSpawn;
     private bool bossPhase = false;
+
+    private GameObject bossRef;
+    private bool gameWon;
+    private bool bossDead;
+
+    
+
     // Start is called before the first frame update
     void Start()
     {
-        enemiesLeft = CheckIfEnemyleft();
+        enemiesLeftToSpawn = CheckIfEnemyleft();
+        Events.instance.GameWonToggleEvent += ToggleGameWon;
+        
     }
     // Update is called once per frame
     void FixedUpdate()
     {
-
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
+        if (gameWon)
         {
-            if (waveNumber == 3)
+            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
             {
-                InstantiateBoss();
-                waveNumber++;
-            }
-            else
+                GameWon();
+                return;
+            }else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
             {
-                if (enemiesLeft)
-                {
-                    SpawnEnemies();
-
-                }
-                else
-                {
-                    WaitForEnemyToSpawn();
-
-                }
+                GameWon();
+                return;
             }
-            
         }
-        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        
+        if (waveNumber == 3)
         {
-            if (waveNumber == 3)
+            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
             {
+                SpawnBoss();
+            }
+            else if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+            {
+               
                 InstantiateBoss();
                 bossPhase = true;
-                waveNumber++;
+            }
+                
+            waveNumber++;
+        }
+        else
+        {
+            if (enemiesLeftToSpawn)
+            {
+                SpawnEnemies();
             }
             else
             {
-                if (enemiesLeft)
-                {
-                    SpawnEnemies();
-
-                }
-                else
-                {
-                    WaitForEnemyToSpawn();
-
-                }
+                WaitForEnemyToSpawn();
             }
         }
-
 
     }
 
 
     #region Required Functions 
 
-    void EnemiesSpawnForBossPhase()
+    void ToggleGameWon()
+    {
+        gameWon = true;
+    }
+
+    void GameWon()
     {
         
+        if(!CheckIfEnemyleft())
+        {
+            GameWonServerRpc();
+        }
     }
+    #region ServerRpcCalls
+    [ServerRpc(RequireOwnership = false)]
+    void GameWonServerRpc()
+    {
+        GameWonUIClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
+    }
+
+    [ClientRpc]
+    void GameWonUIClientRpc(ClientRpcParams clientRpcParams)
+    {
+        Events.instance.GameWonUI();
+    }
+    #endregion
 
     void WaitForEnemyToSpawn()
     {
         waveIntervalTimer -= Time.fixedDeltaTime;
         if (waveIntervalTimer <= 0)
         {
-            if (bossPhase)
+            if (bossPhase && !bossRef.GetComponent<Boss>().forceFieldOn)
             {
                 ++waveNumber;
-                //Events.instance.waveDelegate(waveNumber);
-                waveValue = waveNumber *2;
+                Events.instance.waveDelegate(waveNumber);
+                waveValue = waveNumber * 2;
                 waveIntervalTimer = 5f;
                 GenerateEnemies();
-                enemiesLeft = true;
+                enemiesLeftToSpawn = true;
             }
-            else
+            else if(!bossPhase)
             {
                 ++waveNumber;
                 //Events.instance.waveDelegate(waveNumber);
                 waveValue = waveNumber * 10 +5;
                 waveIntervalTimer = 5f;
                 GenerateEnemies();
-                enemiesLeft = true;
+                enemiesLeftToSpawn = true;
             }
             
         }
@@ -123,19 +147,19 @@ public class EnemyManager : NetworkBehaviour
                 InstantiateEnemies();
             }
             else
-                if (!CheckIfEnemyleft()) enemiesLeft = false;
+                if (!CheckIfEnemyleft()) enemiesLeftToSpawn = false;
         }
     }
 
     void InstantiateEnemies()
     {
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
         {
             GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
             enemy.GetComponent<NetworkObject>().Spawn(true);
             EnemiesListTospwan.RemoveAt(0);
         }
-        else
+        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
             GameObject enemy = Instantiate(EnemiesListTospwan[0], spawnPoints[Random.Range(0, spawnPoints.Count)].position, Quaternion.identity);
             EnemiesListTospwan.RemoveAt(0);
@@ -176,20 +200,23 @@ public class EnemyManager : NetworkBehaviour
     #region BossPhase
     private void InstantiateBoss()
     {
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
-        {
-            GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
-            instantiatesBoss.GetComponent<NetworkObject>().Spawn(true);
+        GameObject instantiatedBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
+        bossRef = instantiatedBoss;
+    }
 
-        }
-        else
-        {
-            
-            GameObject instantiatedBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
-        }
+    private void SpawnBoss()
+    {
+        GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
+        bossRef = instantiatesBoss;
+        instantiatesBoss.GetComponent<NetworkObject>().Spawn(true);
     }
 
     #endregion
+
+    private void OnDestroy()
+    {
+        Events.instance.GameWonToggleEvent -= ToggleGameWon;
+    }
 }
 
 [System.Serializable]

@@ -1,21 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class Boss : NetworkBehaviour
 {
 
-    [SerializeField] GameObject forceFieldColliderObject;
+    [SerializeField] GameObject shield;
     [SerializeField] ParticleSystem forceField;
-    private ParticleSystem instantiatedParticleSystem;
+    
     [SerializeField]private GameObject bulletPrefab;
     [SerializeField] Transform shootingPoint;
 
 
     private float Health = 150f;
     private float damageTaken = 0;
-    private bool forceFieldOn = false;
+    public bool forceFieldOn = false;
     private float forceFieldTimer = 10f;
     private float shootingTimer = 4f;
 
@@ -23,20 +24,24 @@ public class Boss : NetworkBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {
+    {  
         SpaceShipEntryMovement();
+        ForceFieldOff();
     }
+
 
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        if(Health >=0 ) { BossOver(); }
+        
+        if(Health <=0 ) { BossOver(); }
         MovementOfEnemyShip();
         if(damageTaken >= 40)
         {
-            damageTaken = 0f;
+            
             ForceFieldOn();
+            
         }
         else
         {
@@ -44,12 +49,15 @@ public class Boss : NetworkBehaviour
         }
         if (!forceFieldOn) return;
         forceFieldTimer -= Time.fixedDeltaTime;
+        Debug.Log(forceFieldTimer);
         if (forceFieldTimer <= 0)
         {
-            forceFieldOn = false;
+            
             forceFieldTimer = 10f;
             ForceFieldOff();
+            damageTaken = 0;
         }
+        
     }
 
     #region Multiplayer Stuff
@@ -101,18 +109,23 @@ public class Boss : NetworkBehaviour
 
     void ForceFieldOff()
     {
-        instantiatedParticleSystem.Stop();
-        forceFieldColliderObject.SetActive(false);
+        forceFieldOn = false;
+        forceField.Stop();
+        shield.SetActive(false);
+        
     }
 
     void ForceFieldOn()
     {
-        instantiatedParticleSystem.Play();
-        forceFieldColliderObject.SetActive(true);
+        forceFieldOn = true;
+        shield.SetActive(true);
+        forceField.Play();
+        
     }
 
     void BossOver()
     {
+        Events.instance.GameWonToggleEvent();
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             DeathServerRpc();
@@ -122,10 +135,11 @@ public class Boss : NetworkBehaviour
         {
             Destroy(gameObject);
             // Game Won Screen For Player 
-        }
-
-       
+        }      
     }
+
+    
+
 
     #endregion
 

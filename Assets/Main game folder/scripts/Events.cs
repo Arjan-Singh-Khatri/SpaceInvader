@@ -37,6 +37,9 @@ public class Events : MonoBehaviour
     public Action allPlayerDeadUI;
     public Action hostDisconnect;
 
+    public Action GameWonToggleEvent;
+    public Action GameWonUI;
+
     public Action Host;
     public Action client;
 
