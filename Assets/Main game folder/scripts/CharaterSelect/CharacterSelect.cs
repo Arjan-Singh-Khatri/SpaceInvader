@@ -37,7 +37,7 @@ public class CharacterSelect : MonoBehaviour
             Show();
             PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromPlayerIndex(playerIndex);
 
-            playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerIndex));
+            playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
 
             playerName.text = playerData.playerName.ToString();
             readyGameobject.SetActive(ReadyLogic.instance.IsPlayerReady(playerData.clientId));

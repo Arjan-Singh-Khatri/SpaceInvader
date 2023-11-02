@@ -39,19 +39,30 @@ public class Projectiles : NetworkBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Donot Destroy if enemy bullet hit enemy and player bullet hit player
-        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
-        {
-            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Boss") || collision.gameObject.CompareTag("Shield"))
-                DespawnServerRpc();
 
+        if(gameObject.CompareTag("PlayerMissile") || gameObject.CompareTag("PlayerBullet"))
+        {
+            if (collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Boss") || collision.gameObject.CompareTag("Shield"))
+                DestroyBullet();
         }
         else
         {
-            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Enemy") || collision.gameObject.CompareTag("Boss") || collision.gameObject.CompareTag("Shield"))
-                Destroy(gameObject);
+            if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Shield"))
+                DestroyBullet();
         }
 ;
 
+    }
+
+    void DestroyBullet()
+    {
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            DespawnServerRpc();
+        }else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer )
+        {
+            Destroy(gameObject);
+        }
     }
 
     [ServerRpc(RequireOwnership =false)]

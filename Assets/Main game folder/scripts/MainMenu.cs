@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Xml.Serialization;
 using TMPro;
 using Unity.Netcode;
+using UnityEditor;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -73,6 +74,8 @@ public class MainMenu : NetworkBehaviour
         Events.instance.playerDeathUI += PlayerDeadUi;
         Events.instance.hostDisconnect += HostDisconnectUi;
 
+        Events.instance.waveTextDelegate += WaveTextMove;
+
         #region AddingListeners 
         hostDisconnectMenu.onClick.AddListener(GoToMainMenu);
         allPlayerDeadMenu.onClick.AddListener(GoToMainMenu);
@@ -92,25 +95,33 @@ public class MainMenu : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyUp(KeyCode.Escape))
+        if (LocalGamePaused)
         {
-            if (LocalGamePaused)
+            if (Input.GetKeyUp(KeyCode.Escape))
             {
                 Resume();
             }
+            else if (Input.GetKeyUp(KeyCode.M))
+            {
+                GoToMainMenu();
 
-            else
+            }
+            else if (Input.GetKeyUp(KeyCode.Q))
+            {
+                QuitGame();
+            }
+        }
+        else
+        {
+            if (Input.GetKeyUp(KeyCode.Escape))
             {
                 Pause();
             }
-
         }
-        //if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
-        //    multiPlayerPanel.SetActive(false);
 
     }
 
-    #region 
+    #region Game Won
     void GameWon()
     {
         gameWonPanel.SetActive(true);
@@ -125,24 +136,28 @@ public class MainMenu : NetworkBehaviour
         playerDeadUiMultiplayer.SetActive(false);
         allPlayerDeadPanel.SetActive(false);
         hostDisconnectUI.SetActive(true);
+        LocalGamePaused = true;
     }
 
     void PlayerDeadUi()
     {
         if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
             playerDeadUiMultiplayer.SetActive(true);
+        LocalGamePaused = true;
 
     }
     void KeepWatching()
     {
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
             playerDeadUiMultiplayer.SetActive(false);
+        LocalGamePaused = false;
     }
 
     void AllPlayerDeadUi()
     {
         playerDeadUiMultiplayer.SetActive(false);
         GameOverUI();
+        LocalGamePaused = true;
     }
 
     #endregion
@@ -166,6 +181,22 @@ public class MainMenu : NetworkBehaviour
             NetworkManager.Singleton.Shutdown();
         }
         Time.timeScale = 1f;
+
+        #region CleanUp
+        if (Events.instance != null)
+        {
+            Destroy(Events.instance.gameObject);
+        }
+        if(GameStateManager.Instance != null)
+        {
+            Destroy(GameStateManager.Instance.gameObject);
+        }
+        if(GameStateManager.Instance!= null)
+        {
+            Destroy(BgMusic.instance.gameObject);
+        }
+        #endregion
+
         SceneManager.LoadScene("MainMenu");
     }
 
@@ -208,6 +239,7 @@ public class MainMenu : NetworkBehaviour
         GameStateManager.Instance.currentGameState = GameState.gamePaused;
         gamePausedBySomePlayerPanel.SetActive(true);
         Time.timeScale = 0f;
+        LocalGamePaused = true;
     }
 
     private void GameUnPausedMultiplayer()
@@ -215,6 +247,7 @@ public class MainMenu : NetworkBehaviour
         Time.timeScale = 1f;
         GameStateManager.Instance.currentGameState = GameState.allPlayersReady;
         gamePausedBySomePlayerPanel.SetActive(false);
+        LocalGamePaused = false;
         
     }
 
@@ -235,11 +268,13 @@ public class MainMenu : NetworkBehaviour
         if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             gameOverPanel.SetActive(true);
+            LocalGamePaused = true;
             
         }
         else
         {
-            gameOverPanel.SetActive(true); 
+            gameOverPanel.SetActive(true);
+            LocalGamePaused = true;
         }
 
     }
@@ -268,7 +303,8 @@ public class MainMenu : NetworkBehaviour
     }
     void WaveTextPositionReturn()
     {
-        waveText.gameObject.SetActive(false);
+        waveText.rectTransform.DOAnchorPos(waveTextOgPosition, 3f).SetEase(ease);
+        
     }
     #endregion
 

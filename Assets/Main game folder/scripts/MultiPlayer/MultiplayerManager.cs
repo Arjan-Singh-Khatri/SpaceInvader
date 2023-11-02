@@ -40,6 +40,7 @@ public class MultiplayerManager : NetworkBehaviour
 
         playerName = PlayerPrefs.GetString(PLAYER_PREF_PLAYER_NAME_MULTIPLAYER,"Player Name " +  UnityEngine.Random.Range(100, 1000));
         DontDestroyOnLoad(gameObject);
+
     }
 
     public string GetPlayerName()
@@ -122,7 +123,8 @@ public class MultiplayerManager : NetworkBehaviour
         playerDataNetworkListSO.Add(new PlayerData
         {
             clientId = clientId,
-        });
+            colorId = GetUnusedColorId(),
+        }); 
         
     }
 
@@ -344,6 +346,29 @@ public class MultiplayerManager : NetworkBehaviour
     {
         
         return playerColorList[colorID];
+    }
+    private bool IsColorAvailable(int colorID)
+    {
+        foreach(PlayerData playerData in playerDataNetworkListSO)
+        {
+            if(playerData.colorId == colorID)
+            {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private int GetUnusedColorId()
+    {
+        for(int i = 0;i < playerColorList.Count; i++)
+        {
+            if (IsColorAvailable(i))
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public int GetPlayerDataIndexFromClientId(ulong ClientID)

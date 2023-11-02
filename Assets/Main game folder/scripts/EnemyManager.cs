@@ -22,7 +22,6 @@ public class EnemyManager : NetworkBehaviour
 
     private GameObject bossRef;
     private bool gameWon;
-    private bool bossDead;
 
     
 
@@ -31,14 +30,18 @@ public class EnemyManager : NetworkBehaviour
     {
         enemiesLeftToSpawn = CheckIfEnemyleft();
         Events.instance.GameWonToggleEvent += ToggleGameWon;
-        
+
     }
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            if (!IsServer) return;
+        }
         if (gameWon)
         {
-            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
+            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer )
             {
                 GameWon();
                 return;
@@ -51,7 +54,7 @@ public class EnemyManager : NetworkBehaviour
         
         if (waveNumber == 3)
         {
-            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsServer)
+            if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer )
             {
                 SpawnBoss();
             }
@@ -108,6 +111,33 @@ public class EnemyManager : NetworkBehaviour
     }
     #endregion
 
+    #region Wave Txt Rpcs
+
+    void WaveText(int waveNum)
+    {
+        if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Events.instance.waveTextDelegate(waveNum);
+        }else
+        {
+            WaveTextServerRpc(waveNum);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void WaveTextServerRpc(int waveNumber)
+    {
+        WaveTextClientRpc(waveNumber,new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
+    }
+
+    [ClientRpc]
+    void WaveTextClientRpc(int waveNumber ,ClientRpcParams clientRpcParams)
+    {
+        Events.instance.waveTextDelegate(waveNumber);
+    }
+    
+    #endregion
+
     void WaitForEnemyToSpawn()
     {
         waveIntervalTimer -= Time.fixedDeltaTime;
@@ -116,7 +146,6 @@ public class EnemyManager : NetworkBehaviour
             if (bossPhase && !bossRef.GetComponent<Boss>().forceFieldOn)
             {
                 ++waveNumber;
-                Events.instance.waveDelegate(waveNumber);
                 waveValue = waveNumber * 2;
                 waveIntervalTimer = 5f;
                 GenerateEnemies();
@@ -125,7 +154,7 @@ public class EnemyManager : NetworkBehaviour
             else if(!bossPhase)
             {
                 ++waveNumber;
-                //Events.instance.waveDelegate(waveNumber);
+                WaveText(waveNumber);
                 waveValue = waveNumber * 10 +5;
                 waveIntervalTimer = 5f;
                 GenerateEnemies();
@@ -198,10 +227,25 @@ public class EnemyManager : NetworkBehaviour
     #endregion
 
     #region BossPhase
+
+    [ServerRpc(RequireOwnership =false)]
+    void BossPhaseTriggerServerRpc()
+    {
+        BossPhaseTriggerClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
+    }
+
+    [ClientRpc]
+    void BossPhaseTriggerClientRpc(ClientRpcParams clientRpcParams)
+    {
+        GameStateManager.Instance.currentGamePhase = GamePhase.boss;
+    }
+
     private void InstantiateBoss()
     {
         GameObject instantiatedBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
         bossRef = instantiatedBoss;
+        GameStateManager.Instance.currentGamePhase = GamePhase.boss;
+        
     }
 
     private void SpawnBoss()
@@ -209,6 +253,7 @@ public class EnemyManager : NetworkBehaviour
         GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
         bossRef = instantiatesBoss;
         instantiatesBoss.GetComponent<NetworkObject>().Spawn(true);
+        BossPhaseTriggerServerRpc();
     }
 
     #endregion

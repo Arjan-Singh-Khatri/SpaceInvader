@@ -14,7 +14,7 @@ public class Boss : NetworkBehaviour
     [SerializeField] Transform shootingPoint;
 
 
-    private float Health = 150f;
+    private float Health = 1f;
     private float damageTaken = 0;
     public bool forceFieldOn = false;
     private float forceFieldTimer = 10f;
@@ -49,7 +49,7 @@ public class Boss : NetworkBehaviour
         }
         if (!forceFieldOn) return;
         forceFieldTimer -= Time.fixedDeltaTime;
-        Debug.Log(forceFieldTimer);
+
         if (forceFieldTimer <= 0)
         {
             
@@ -128,18 +128,30 @@ public class Boss : NetworkBehaviour
         Events.instance.GameWonToggleEvent();
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
+            GameWonServerRpc();
             DeathServerRpc();
-            // Game Won Rpcs For All PLayers 
         }
         else if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
+            GameStateManager.Instance.currentGamePhase = GamePhase.normal;
+            Events.instance.GameWonUI();
+            
             Destroy(gameObject);
-            // Game Won Screen For Player 
         }      
     }
 
-    
-
+    [ServerRpc(RequireOwnership =false)]
+    void GameWonServerRpc()
+    {
+        GameWonClientRpc(new ClientRpcParams { Send = new ClientRpcSendParams { TargetClientIds = NetworkManager.Singleton.ConnectedClientsIds } });
+    }
+    [ClientRpc]
+    void GameWonClientRpc(ClientRpcParams clientRpcParams)
+    {
+        GameStateManager.Instance.currentGamePhase = GamePhase.normal;
+        Events.instance.GameWonUI();
+        
+    }
 
     #endregion
 

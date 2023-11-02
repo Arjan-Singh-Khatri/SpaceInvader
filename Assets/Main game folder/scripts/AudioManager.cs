@@ -7,7 +7,7 @@ public class AudioManager : MonoBehaviour
 {
     private AudioSource explode;
     [SerializeField] AudioClip explodeClip;
-    [SerializeField]bool True = false;
+    [SerializeField]bool enemyDestroyed = false;
     private void Start()
     {
         explode = GetComponent<AudioSource>();
@@ -15,10 +15,10 @@ public class AudioManager : MonoBehaviour
     }
     private void Update()
     {
-        if (True)
+        if (enemyDestroyed)
         {
             PlayExplodeSound();
-            True = false;
+            enemyDestroyed = false;
         }
             
     }
@@ -26,6 +26,7 @@ public class AudioManager : MonoBehaviour
     {
         explode.clip = explodeClip;
         explode.PlayOneShot(explode.clip, .1f);
-    }    
+    }
+   
 }
 

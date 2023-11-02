@@ -21,6 +21,9 @@ public class Events : MonoBehaviour
     public  AmmoCount ammoCount;
     public delegate void HealthCount(int health);
     public  HealthCount healthCount;
+    public delegate void WaveTextDelegate(int waveNumber);
+    public WaveTextDelegate waveTextDelegate;
+
     public  Action gameOver;
     public  Action playerReady;
 

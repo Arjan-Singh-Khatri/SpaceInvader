@@ -17,6 +17,8 @@ public class BoosBullet : NetworkBehaviour
             CallRpcForPlayerTrack();
         else
             playerToTrack = GameObject.FindGameObjectWithTag("Player");
+
+        Events.instance.GameWonToggleEvent += Destroy;
     }
 
     // Update is called once per frame
@@ -42,6 +44,10 @@ public class BoosBullet : NetworkBehaviour
 
     void MovementFunction()
     {
+        if (playerToTrack == null)
+        {
+            return;
+        }
         transform.position = Vector3.MoveTowards(transform.position, playerToTrack.transform.position,Time.deltaTime * speed);
         Vector3 directionToPlayer = playerToTrack.transform.position - transform.position;
         float targetAngle = Mathf.Atan2(directionToPlayer.y, directionToPlayer.x) * Mathf.Rad2Deg;
@@ -80,13 +86,24 @@ public class BoosBullet : NetworkBehaviour
         gameObject.GetComponent<NetworkObject>().Despawn(true);
     }
 
+    private void Destroy()
+    {
+        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            DespawnServerRpc();
+        }else if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Destroy(gameObject);
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Donot Destroy if enemy bullet hit enemy and player bullet hit player
-        if (collision.gameObject.CompareTag("Player") && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
-            DespawnServerRpc();
-        else if (collision.gameObject.CompareTag("Player") && GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
-            Destroy(gameObject);
+        if (collision.gameObject.CompareTag("Player") )
+            Destroy();
+        else if (collision.gameObject.CompareTag("Player"))
+            Destroy();
 
     }
 }

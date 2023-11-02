@@ -255,6 +255,7 @@ MonoBehaviour:
   forceField: {fileID: 2960763653063828104}
   bulletPrefab: {fileID: 1653296621491291777, guid: 7b4e448e1b213834a80eb8181b4f8469, type: 3}
   shootingPoint: {fileID: 4856236604533918329}
+  forceFieldOn: 0
 --- !u!82 &-4431493175319927783
 AudioSource:
   m_ObjectHideFlags: 0
@@ -267,7 +268,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: eefa74d9a7df06a4e818b2b827ff0887, type: 3}
   m_PlayOnAwake: 1
-  m_Volume: 0.5
+  m_Volume: 0.3
   m_Pitch: 1
   Loop: 1
   Mute: 0

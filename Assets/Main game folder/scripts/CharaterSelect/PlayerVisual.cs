@@ -14,6 +14,8 @@ public class PlayerVisual : MonoBehaviour
         spriteRenderer.material = material;
     }
 
+
+
     public void SetPlayerColor(Color color )
     {
         material.color = color;
