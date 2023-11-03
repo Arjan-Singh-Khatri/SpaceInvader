@@ -41,6 +41,7 @@ public class EnemyB : Enemy
             if (clip.name == "Explosion")
             {
                 destroyAnimationTIme = clip.length;
+                Debug.Log(destroyAnimationTIme);
             }
         }
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)

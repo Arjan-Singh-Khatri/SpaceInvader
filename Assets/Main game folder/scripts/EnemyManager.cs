@@ -154,7 +154,7 @@ public class EnemyManager : NetworkBehaviour
             else if(!bossPhase)
             {
                 ++waveNumber;
-                WaveText(waveNumber);
+                if(waveNumber<=3)WaveText(waveNumber);
                 waveValue = waveNumber * 10 +5;
                 waveIntervalTimer = 5f;
                 GenerateEnemies();

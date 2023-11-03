@@ -12,6 +12,7 @@ public class Boss : NetworkBehaviour
     
     [SerializeField]private GameObject bulletPrefab;
     [SerializeField] Transform shootingPoint;
+    Animator animator;
 
 
     private float Health = 1f;
@@ -25,6 +26,7 @@ public class Boss : NetworkBehaviour
     // Start is called before the first frame update
     void Start()
     {  
+        animator = GetComponent<Animator>();
         SpaceShipEntryMovement();
         ForceFieldOff();
     }
@@ -35,7 +37,10 @@ public class Boss : NetworkBehaviour
     void FixedUpdate()
     {
         
-        if(Health <=0 ) { BossOver(); }
+        if(Health <=0 ) 
+        { 
+            Invoke("BossOver", 1.016667f);
+            return; }
         MovementOfEnemyShip();
         if(damageTaken >= 40)
         {

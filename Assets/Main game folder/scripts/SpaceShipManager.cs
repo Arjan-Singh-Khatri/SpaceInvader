@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SpaceShipManager : NetworkBehaviour
 {
@@ -15,6 +16,7 @@ public class SpaceShipManager : NetworkBehaviour
     [SerializeField] private GameObject missile;
     [SerializeField] private GameObject bullet;
     [SerializeField] private Transform fireingPoint;
+    private Animator animator;
     int bulletCount = 25;
     int missleCount = 6;
 
@@ -27,16 +29,21 @@ public class SpaceShipManager : NetworkBehaviour
 
     private void Start()
     {
+        animator = GetComponent<Animator>();    
+        
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
             playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
         }
+        
+        
     }
 
 
     void Update()
     {
+        if(playerHealth<=0) { return; }
         horizontal = Input.GetAxis("Horizontal");
         vertical = Input.GetAxis("Vertical");
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
@@ -69,30 +76,29 @@ public class SpaceShipManager : NetworkBehaviour
     void TakeDamage(int Damage)
     {
         playerHealth -= Damage;
-        if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        if (PlayerDead())
         {
-            if (PlayerDead())
-            {
-                CallDespwan();
-                //Call server Rpc to send GameOver or Keep watching panel 
-                Events.instance.playerDeathUI();
-                Events.instance.playerDeathListAdd();
-            }
-
-        }
-
-        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
-        {
-            Events.instance.healthCount(playerHealth);
-            if (PlayerDead())
-            {
-                Destroy(gameObject);
-                Events.instance.gameOver();
-            }
-               
+            SpaceShipDestroy();
         }
     }
-    
+
+    private IEnumerator SpaceShipDestroy()
+    {
+        animator.SetTrigger("destroy");
+        yield return new WaitForSeconds(1.016667f);
+        if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        {
+            CallDespwan();
+            Events.instance.playerDeathUI();
+            Events.instance.playerDeathListAdd();
+        }
+        else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
+        {
+            Destroy(gameObject);
+            Events.instance.gameOver();
+        }
+    }
+ 
 
     bool PlayerDead()
     {
