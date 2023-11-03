@@ -119,6 +119,11 @@ public class MainMenu : NetworkBehaviour
             }
         }
 
+        if (Input.GetKeyUp(KeyCode.K))
+        {
+            KeepWatching();
+        }
+
     }
 
     #region Game Won
@@ -141,15 +146,14 @@ public class MainMenu : NetworkBehaviour
 
     void PlayerDeadUi()
     {
-        if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
-            playerDeadUiMultiplayer.SetActive(true);
+        playerDeadUiMultiplayer.SetActive(true);
         LocalGamePaused = true;
 
     }
     void KeepWatching()
     {
-        if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
-            playerDeadUiMultiplayer.SetActive(false);
+        //Removed is owner
+        playerDeadUiMultiplayer.SetActive(false);
         LocalGamePaused = false;
     }
 

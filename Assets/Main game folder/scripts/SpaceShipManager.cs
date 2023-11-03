@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 public class SpaceShipManager : NetworkBehaviour
 {
     [Header("Basic Components")]
-    private int playerHealth = 5;
+    public int playerHealth = 5;
     private float horizontal;
     private float vertical;
 
@@ -78,19 +78,20 @@ public class SpaceShipManager : NetworkBehaviour
         playerHealth -= Damage;
         if (PlayerDead())
         {
-            SpaceShipDestroy();
+            StartCoroutine(SpaceShipDestroy());
         }
     }
 
     private IEnumerator SpaceShipDestroy()
     {
-        animator.SetTrigger("destroy");
-        yield return new WaitForSeconds(1.016667f);
+        animator.SetTrigger("Destroy");
+        yield return new WaitForSeconds(.5f);
         if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            CallDespwan();
+            
             Events.instance.playerDeathUI();
             Events.instance.playerDeathListAdd();
+            CallDespwan();
         }
         else if(GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
@@ -114,7 +115,7 @@ public class SpaceShipManager : NetworkBehaviour
     void DesapwnServerRpc(uint clientId)
     {
         
-        gameObject.GetComponent<NetworkObject>().Despawn();
+        gameObject.GetComponent<NetworkObject>().Despawn(true);
     }
 
     void ShootingManagerFunction()
@@ -164,7 +165,7 @@ public class SpaceShipManager : NetworkBehaviour
                 bulletCount = 0;
             }
             Events.instance.ammoCount(bulletCount, missleCount);
-        }else if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
+        }else if(GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer && IsOwner)
         {
 
             BulletSpawnServerRpc();

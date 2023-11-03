@@ -37,10 +37,7 @@ public class Boss : NetworkBehaviour
     void FixedUpdate()
     {
         
-        if(Health <=0 ) 
-        { 
-            Invoke("BossOver", 1.016667f);
-            return; }
+        if(Health <=0 ) {return; }
         MovementOfEnemyShip();
         if(damageTaken >= 40)
         {
@@ -167,11 +164,18 @@ public class Boss : NetworkBehaviour
         {
             damageTaken += 10f;
             Health -= 10f;
+            if (Health <= 0) { animator.SetTrigger("Destroy");
+                Invoke("BossOver", 1.016667f);
+            }
         }
         if (collision.CompareTag("PlayerMissile"))
         {
             damageTaken += 20f;
             Health -= 20f;
+            if (Health <= 0) { animator.SetTrigger("Destroy");
+
+                Invoke("BossOver", 1.016667f);
+            }
         }
     }
 

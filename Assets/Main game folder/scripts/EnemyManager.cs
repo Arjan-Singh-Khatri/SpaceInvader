@@ -16,7 +16,7 @@ public class EnemyManager : NetworkBehaviour
     private NetworkObject spawnedObject;
     private List<GameObject> EnemiesListTospwan = new();
     private int waveValue = 0;
-    private int waveNumber = 3;
+    private int waveNumber = 0;
     private bool enemiesLeftToSpawn;
     private bool bossPhase = false;
 

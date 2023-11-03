@@ -24,6 +24,7 @@ public class AudioManager : MonoBehaviour
     }
     void PlayExplodeSound()
     {
+        
         explode.clip = explodeClip;
         explode.PlayOneShot(explode.clip, .1f);
     }

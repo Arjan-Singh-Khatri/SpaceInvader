@@ -18,11 +18,13 @@ public class SpaceShipMovement : NetworkBehaviour
     readonly float upYBoundary= 4.18f;
     readonly float downYBoundary = -4.18f;
     float angleForRotation;
+    [SerializeField] SpaceShipManager spaceShipManager;
 
     Quaternion previousRotation;
     // Update is called once per frame
     void Update()
     {
+        if(spaceShipManager.playerHealth<=0) return;    
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
             if (!IsOwner) return;

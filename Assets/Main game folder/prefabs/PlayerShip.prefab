@@ -155,6 +155,7 @@ GameObject:
   - component: {fileID: -8319812764043976997}
   - component: {fileID: 7848059550419690614}
   - component: {fileID: -9003117116405537996}
+  - component: {fileID: -5608878308549981713}
   m_Layer: 0
   m_Name: PlayerShip
   m_TagString: Player
@@ -243,6 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39efb07e174465488d6802015d5a875, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  spaceShipManager: {fileID: 2902715986107336276}
 --- !u!114 &2902715986107336276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,6 +257,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99e269f92b72b34697e0db8651f9d7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  playerHealth: 5
   missile: {fileID: 2520905092140479226, guid: 0a4b694c8c9f0bd489d208a45014a93e, type: 3}
   bullet: {fileID: 5857931000029318853, guid: eca02e097f61f074d9845d7c0c94d479, type: 3}
   fireingPoint: {fileID: 2902715985427187490}
@@ -360,13 +363,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SyncPositionX: 1
   SyncPositionY: 1
-  SyncPositionZ: 1
+  SyncPositionZ: 0
   SyncRotAngleX: 1
   SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
+  SyncRotAngleZ: 0
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
@@ -401,3 +404,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spriteRenderer: {fileID: 2902715986107336272}
+--- !u!114 &-5608878308549981713
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2902715986107336274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8d0727d5ae3244e3b569694d3912374, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TransitionStateInfoList: []
+  m_Animator: {fileID: 2902715986107336278}
