@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 public class SpaceShipManager : NetworkBehaviour
 {
     [Header("Basic Components")]
-    public int playerHealth = 5;
+    public int playerHealth = 50;
     private float horizontal;
     private float vertical;
 
@@ -36,11 +36,11 @@ public class SpaceShipManager : NetworkBehaviour
             PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
             playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
         }
-        
+        Events.instance.healthCount(playerHealth);
         
     }
 
-
+    
     void Update()
     {
         if(playerHealth<=0) { return; }
@@ -76,6 +76,7 @@ public class SpaceShipManager : NetworkBehaviour
     void TakeDamage(int Damage)
     {
         playerHealth -= Damage;
+        Events.instance.healthCount(playerHealth);
         if (PlayerDead())
         {
             StartCoroutine(SpaceShipDestroy());

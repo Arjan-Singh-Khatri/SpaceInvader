@@ -29,6 +29,7 @@ public class SpaceShipMovement : NetworkBehaviour
         {
             if (!IsOwner) return;
             Movement();
+            PlayerRotation();
             BoundaryChecks();
         }
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
@@ -36,6 +37,7 @@ public class SpaceShipMovement : NetworkBehaviour
             #region Movement
 
             Movement();
+            PlayerRotation();
             //Boundary Check
             BoundaryChecks();
             #endregion
@@ -49,6 +51,11 @@ public class SpaceShipMovement : NetworkBehaviour
         movementVector.x = horizontal;
         movementVector.y = vertical;
         transform.position += Time.deltaTime * speed * movementVector;
+
+    }
+
+    private void PlayerRotation()
+    {
         angleForRotation = Mathf.Atan2(vertical, horizontal) * Mathf.Rad2Deg;
         if (movementVector.magnitude < 0.1f)
             transform.rotation = previousRotation;

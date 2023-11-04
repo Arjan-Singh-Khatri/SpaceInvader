@@ -88,6 +88,7 @@ public class MainMenu : NetworkBehaviour
         bulletLeftText.text = "X" + 25.ToString();
         missileLeftText.text ="X" + 6.ToString();
         mainMenuPlayerDeath.onClick.AddListener(GoToMainMenu);
+
         #endregion
 
     }

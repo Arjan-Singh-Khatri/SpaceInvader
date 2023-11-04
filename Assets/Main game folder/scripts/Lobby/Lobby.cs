@@ -18,6 +18,12 @@ using UnityEngine.SceneManagement;
 
 public class Lobby : NetworkBehaviour
 {
+    public event EventHandler OnCreateLobbyStarted;
+    public event EventHandler OnCreateLobbyFailed;
+    public event EventHandler OnJoinStarted;
+    public event EventHandler OnJoinFailed;
+    public event EventHandler OnQuickJoinFailed;
+
     private const string KEY_RELAY_JOIN_CODE = "Relay Join Code";
 
     public event EventHandler<OnLobbyListChangedEventsArgs> onLobbyListChanged;   
@@ -139,6 +145,7 @@ public class Lobby : NetworkBehaviour
 
     public async void CreateLobby(string lobbyName, bool isPrivate)
     {
+        OnCreateLobbyStarted?.Invoke(this, EventArgs.Empty);    
         try
         {
             joinedLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, MultiplayerManager.instance.MAX_PLAYER_COUNT, new CreateLobbyOptions { IsPrivate = isPrivate });
@@ -163,11 +170,13 @@ public class Lobby : NetworkBehaviour
         catch(LobbyServiceException e)
         {
             Debug.Log(e);
+            OnCreateLobbyFailed?.Invoke(this, EventArgs.Empty);
         }  
     }
 
     public async void QuickJoinLobby()
     {
+        OnJoinStarted.Invoke(this, EventArgs.Empty);
         try
         {
             await LobbyService.Instance.QuickJoinLobbyAsync();
@@ -182,6 +191,7 @@ public class Lobby : NetworkBehaviour
         catch (LobbyServiceException e)
         {
             Debug.Log(e);
+            OnQuickJoinFailed.Invoke(this, EventArgs.Empty);
         }
     }
 
@@ -192,6 +202,7 @@ public class Lobby : NetworkBehaviour
 
     public async void JoinWithCode(string lobbyCode)
     {
+        OnJoinStarted.Invoke(this, EventArgs.Empty);
         try
         {
             joinedLobby =  await LobbyService.Instance.JoinLobbyByCodeAsync(lobbyCode);
@@ -204,6 +215,7 @@ public class Lobby : NetworkBehaviour
         catch(LobbyServiceException e)
         {
             Debug.Log(e);
+            OnJoinFailed.Invoke(this, EventArgs.Empty);
         }
     }
 
