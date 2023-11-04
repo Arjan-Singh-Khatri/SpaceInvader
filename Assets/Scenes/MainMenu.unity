@@ -811,6 +811,7 @@ GameObject:
   - component: {fileID: 237559605}
   - component: {fileID: 237559604}
   - component: {fileID: 237559607}
+  - component: {fileID: 237559608}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -917,6 +918,19 @@ MonoBehaviour:
   m_RequiresDepthTexture: 0
   m_RequiresColorTexture: 0
   m_Version: 2
+--- !u!114 &237559608
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 237559603}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 591602986f92bb54883bc4d48c8960a8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetAspectRatio: 1.7777778
 --- !u!1 &276467254
 GameObject:
   m_ObjectHideFlags: 0
@@ -1433,8 +1447,8 @@ RectTransform:
   m_GameObject: {fileID: 420145569}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 1212019607}
   - {fileID: 471147775}
@@ -1784,10 +1798,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UiScaleMode: 0
+  m_UiScaleMode: 1
   m_ReferencePixelsPerUnit: 100
   m_ScaleFactor: 1
-  m_ReferenceResolution: {x: 800, y: 600}
+  m_ReferenceResolution: {x: 1920, y: 1080}
   m_ScreenMatchMode: 0
   m_MatchWidthOrHeight: 0
   m_PhysicalUnit: 3
@@ -1805,7 +1819,7 @@ Canvas:
   m_Enabled: 1
   serializedVersion: 3
   m_RenderMode: 0
-  m_Camera: {fileID: 0}
+  m_Camera: {fileID: 237559605}
   m_PlaneDistance: 100
   m_PixelPerfect: 0
   m_ReceivesEvents: 1
@@ -1903,7 +1917,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0.60570323, y: 0.13286142, z: 0.05709286}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 155763275}
   - {fileID: 1028413253}
@@ -4184,6 +4198,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1471029894}
   - component: {fileID: 1471029893}
+  - component: {fileID: 1471029895}
   m_Layer: 0
   m_Name: Square
   m_TagString: Untagged
@@ -4251,13 +4266,27 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1471029892}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.016, y: -0.0159, z: 0}
-  m_LocalScale: {x: 21.843206, y: 10.02959, z: 1}
+  m_LocalPosition: {x: -0.0039, y: 0.073, z: 0}
+  m_LocalScale: {x: 19.559423, y: 10.018878, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1471029895
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1471029892}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8deabf42509283c45a9fcbb35a931269, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  backgroundSpriteRenderer: {fileID: 1471029893}
+  padding: 0.1
 --- !u!1 &1481922944
 GameObject:
   m_ObjectHideFlags: 0
@@ -4576,9 +4605,9 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1605755014}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.7035711, y: 1.2462116, z: 0.053944327}
+  m_LocalPosition: {x: 3.24, y: 1.2462116, z: 0.053944327}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 21201842}
   - {fileID: 972706668}
@@ -5434,11 +5463,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3242742446002704904, guid: 104d5cffbe36944419919117276f1064, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.7035711
+      value: 1.98
       objectReference: {fileID: 0}
     - target: {fileID: 3242742446002704904, guid: 104d5cffbe36944419919117276f1064, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1.2462116
+      value: 0.78
       objectReference: {fileID: 0}
     - target: {fileID: 3242742446002704904, guid: 104d5cffbe36944419919117276f1064, type: 3}
       propertyPath: m_LocalPosition.z

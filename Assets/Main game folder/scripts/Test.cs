@@ -4,47 +4,51 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
-    [SerializeField] GameObject boss;
-    float shootingTimer = 4f;
+    public SpriteRenderer backgroundSpriteRenderer;
+    public float padding = 0.1f; // Adjust padding as needed.
 
-    int[] array = { 3, 2, 2, 3 };
-    // Start is called before the first frame update
     void Start()
     {
-        RemoveElement(array, 3);
-        for(int i =0;i< array.Length; i++)
-        {
-            Debug.Log(array[i]);
-        }
+        ScaleBackground();
     }
 
-    // Update is called once per frame
-    void FixedUpdate()
+    void ScaleBackground()
     {
-        
-
-    }
-
-    public int RemoveElement(int[] nums, int val)
-    {
-        int temp;
-        int countOfEqualNumber = 0;
-        for (int i = 0; i < nums.Length; i++)
+        if (backgroundSpriteRenderer == null)
         {
-            int j = 1;
-            if (nums[i] == val)
-            {
-                countOfEqualNumber += 1;
-                while (nums[nums.Length - j] == val)
-                {
-                    if (nums.Length - j == i) break;
-                    j += 1;
-                }
-                temp = nums[i];
-                nums[i] = nums[nums.Length - j];
-                nums[nums.Length - j] = temp;
-            }
+            Debug.LogError("Background SpriteRenderer not assigned.");
+            return;
         }
-        return nums.Length - countOfEqualNumber;
+
+        Camera mainCamera = Camera.main;
+
+        if (mainCamera == null)
+        {
+            Debug.LogError("Main Camera not found.");
+            return;
+        }
+
+        // Calculate the world space width and height of the screen edges at the depth of the background.
+        float screenHeight = mainCamera.orthographicSize * 2.0f;
+        float screenWidth = screenHeight * mainCamera.aspect;
+
+        // Get the size of the background sprite.
+        float spriteWidth = backgroundSpriteRenderer.bounds.size.x;
+        float spriteHeight = backgroundSpriteRenderer.bounds.size.y;
+
+        // Calculate the scaling factors for the background.
+        float scaleX = screenWidth / spriteWidth;
+        float scaleY = screenHeight / spriteHeight;
+
+        // Apply the smaller scaling factor to maintain the aspect ratio.
+        float scale = Mathf.Min(scaleX, scaleY);
+
+        // Apply padding to avoid the background being cut off at the screen edges.
+        scale *= 1.0f - padding;
+
+        // Set the background's scale to fit the screen.
+        transform.localScale =  new Vector3(screenWidth+5, screenHeight+5, scale);
+
     }
+
 }

@@ -21,7 +21,7 @@ public class Boss : NetworkBehaviour
     private float forceFieldTimer = 10f;
     private float shootingTimer = 4f;
 
-
+    [SerializeField] private Vector2 positionOnCamera;
 
     // Start is called before the first frame update
     void Start()
@@ -38,7 +38,6 @@ public class Boss : NetworkBehaviour
     {
         
         if(Health <=0 ) {return; }
-        MovementOfEnemyShip();
         if(damageTaken >= 40)
         {
             
@@ -74,14 +73,10 @@ public class Boss : NetworkBehaviour
 
 
     #region Functions For Boss 
-    void MovementOfEnemyShip()
-    {
-
-    }
 
     void SpaceShipEntryMovement()
     {
-
+        transform.position = Vector2.MoveTowards(transform.position,positionOnCamera,5f);
     }
 
     void ShootBullet()

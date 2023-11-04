@@ -19,7 +19,17 @@ public class SpaceShipMovement : NetworkBehaviour
     readonly float downYBoundary = -4.18f;
     float angleForRotation;
     [SerializeField] SpaceShipManager spaceShipManager;
+    void Start()
+    {
+        screenBounds = MainCamera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height, MainCamera.transform.position.z));
+        objectWidth = transform.GetComponent<SpriteRenderer>().bounds.extents.x; //extents = size of width / 2
+        objectHeight = transform.GetComponent<SpriteRenderer>().bounds.extents.y; //extents = size of height / 2
+    }
 
+    public Camera MainCamera;
+    private Vector2 screenBounds;
+    private float objectWidth;
+    private float objectHeight;
     Quaternion previousRotation;
     // Update is called once per frame
     void Update()
@@ -30,7 +40,7 @@ public class SpaceShipMovement : NetworkBehaviour
             if (!IsOwner) return;
             Movement();
             PlayerRotation();
-            BoundaryChecks();
+            
         }
         if (GameStateManager.Instance.currentGameMode == GameMode.singlePlayer)
         {
@@ -39,10 +49,17 @@ public class SpaceShipMovement : NetworkBehaviour
             Movement();
             PlayerRotation();
             //Boundary Check
-            BoundaryChecks();
+            
             #endregion
 
         }
+    }
+    void LateUpdate()
+    {
+        Vector3 viewPos = transform.position;
+        viewPos.x = Mathf.Clamp(viewPos.x, screenBounds.x * -1 + objectWidth, screenBounds.x - objectWidth);
+        viewPos.y = Mathf.Clamp(viewPos.y, screenBounds.y * -1 + objectHeight, screenBounds.y - objectHeight);
+        transform.position = viewPos;
     }
     void Movement()
     {

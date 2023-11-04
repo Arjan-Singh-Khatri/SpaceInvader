@@ -11,7 +11,7 @@ public class EnemyManager : NetworkBehaviour
     [SerializeField] private float instantiateTimer = 0f;
     [SerializeField] private float waveIntervalTimer = 5f;
     [SerializeField] private GameObject bossPrefab;
-    [SerializeField] private Transform bossLocation;
+    private Vector3 bossLocation = new Vector3(13.1400003f, -0.00999999978f, 1.50239027f);
 
     private NetworkObject spawnedObject;
     private List<GameObject> EnemiesListTospwan = new();
@@ -242,7 +242,7 @@ public class EnemyManager : NetworkBehaviour
 
     private void InstantiateBoss()
     {
-        GameObject instantiatedBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
+        GameObject instantiatedBoss = Instantiate(bossPrefab, bossLocation, Quaternion.identity);
         bossRef = instantiatedBoss;
         GameStateManager.Instance.currentGamePhase = GamePhase.boss;
         
@@ -250,7 +250,7 @@ public class EnemyManager : NetworkBehaviour
 
     private void SpawnBoss()
     {
-        GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation.position, Quaternion.identity);
+        GameObject instantiatesBoss = Instantiate(bossPrefab, bossLocation, Quaternion.identity);
         bossRef = instantiatesBoss;
         instantiatesBoss.GetComponent<NetworkObject>().Spawn(true);
         BossPhaseTriggerServerRpc();
