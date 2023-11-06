@@ -9,7 +9,7 @@ public class BoosBullet : NetworkBehaviour
 {
     GameObject playerToTrack;
     private readonly float speed = 2.8f;
-    [SerializeField]private float bulletLifeTime = 5f;
+    [SerializeField]private float bulletLifeTime = 3f;
     // Start is called before the first frame update
     void Start()
     {

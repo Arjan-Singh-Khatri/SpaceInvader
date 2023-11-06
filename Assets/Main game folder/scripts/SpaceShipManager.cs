@@ -36,7 +36,7 @@ public class SpaceShipManager : NetworkBehaviour
             PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
             playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
         }
-        Events.instance.healthCount(playerHealth);
+        
         
     }
 

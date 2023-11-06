@@ -238,7 +238,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 122497886}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 1.4458549, y: 0.003979087, z: -0.09120526}
+  m_LocalPosition: {x: -3.53, y: 0.003979087, z: -0.09120526}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -3508,7 +3508,6 @@ MonoBehaviour:
   instantiateTimer: 0
   waveIntervalTimer: 5
   bossPrefab: {fileID: 4856236605075534608, guid: f09a6f4811188564da1185549ab69eba, type: 3}
-  bossLocation: {fileID: 1385333294}
 --- !u!114 &1080696700
 MonoBehaviour:
   m_ObjectHideFlags: 0

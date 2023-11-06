@@ -21,13 +21,13 @@ public class Boss : NetworkBehaviour
     private float forceFieldTimer = 10f;
     private float shootingTimer = 4f;
 
-    [SerializeField] private Vector2 positionOnCamera;
+    [SerializeField] private Vector3 positionOnCamera = new Vector2(6.55999994f, -0.0199999996f);
 
     // Start is called before the first frame update
     void Start()
     {  
         animator = GetComponent<Animator>();
-        SpaceShipEntryMovement();
+        
         ForceFieldOff();
     }
 
@@ -36,8 +36,8 @@ public class Boss : NetworkBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        
-        if(Health <=0 ) {return; }
+        SpaceShipEntryMovement();
+        if (Health <=0 ) {return; }
         if(damageTaken >= 40)
         {
             
@@ -76,7 +76,11 @@ public class Boss : NetworkBehaviour
 
     void SpaceShipEntryMovement()
     {
-        transform.position = Vector2.MoveTowards(transform.position,positionOnCamera,5f);
+        if(transform.position == positionOnCamera)
+        {
+            return;
+        } 
+        transform.position = Vector2.Lerp(transform.position, positionOnCamera, 1f*Time.fixedDeltaTime);
     }
 
     void ShootBullet()

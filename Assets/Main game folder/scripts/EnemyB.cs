@@ -35,15 +35,7 @@ public class EnemyB : Enemy
     void Start()
     {
         animator = GetComponent<Animator>();
-        animationClips = animator.runtimeAnimatorController.animationClips;
-        foreach (AnimationClip clip in animationClips)
-        {
-            if (clip.name == "Explosion")
-            {
-                destroyAnimationTIme = clip.length;
-                Debug.Log(destroyAnimationTIme);
-            }
-        }
+        destroyAnimationTIme = 1.01666f;
         if (GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
             CallServerToGetClientListServerRpc();
         else
