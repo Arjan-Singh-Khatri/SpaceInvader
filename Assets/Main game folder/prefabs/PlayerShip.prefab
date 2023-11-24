@@ -220,7 +220,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 2
+  m_SortingOrder: 6
   m_Sprite: {fileID: -1383847937, guid: be25f381e44355e47a38992531ff0aa3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -244,6 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d39efb07e174465488d6802015d5a875, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MainCamera: {fileID: 0}
   spaceShipManager: {fileID: 2902715986107336276}
 --- !u!114 &2902715986107336276
 MonoBehaviour:
@@ -257,7 +258,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a99e269f92b72b34697e0db8651f9d7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerHealth: 5
+  playerHealth: 75
   missile: {fileID: 2520905092140479226, guid: 0a4b694c8c9f0bd489d208a45014a93e, type: 3}
   bullet: {fileID: 5857931000029318853, guid: eca02e097f61f074d9845d7c0c94d479, type: 3}
   fireingPoint: {fileID: 2902715985427187490}

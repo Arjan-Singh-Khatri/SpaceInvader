@@ -52,7 +52,9 @@ public class MainMenu : NetworkBehaviour
 
     [Header("GameOver Boss Dead")]
     [SerializeField] private GameObject gameWonPanel;
-    
+
+
+    [SerializeField] private SpaceShipManager shipManager;
 
     // Start is called before the first frame update
     void Start()
@@ -91,11 +93,15 @@ public class MainMenu : NetworkBehaviour
 
         #endregion
 
+        
+
     }
 
     // Update is called once per frame
     void Update()
     {
+        healthSlider.value = shipManager.playerHealth;
+        
         if (LocalGamePaused)
         {
             if (Input.GetKeyUp(KeyCode.Escape))

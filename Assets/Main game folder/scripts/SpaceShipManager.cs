@@ -8,7 +8,7 @@ using UnityEngine.UIElements;
 public class SpaceShipManager : NetworkBehaviour
 {
     [Header("Basic Components")]
-    public int playerHealth = 50;
+    public int playerHealth = 75;
     private float horizontal;
     private float vertical;
 
@@ -20,7 +20,7 @@ public class SpaceShipManager : NetworkBehaviour
     int bulletCount = 25;
     int missleCount = 6;
 
-    int damageTakenFromMissile = 20;
+    int damageTakenFromMissile = 15;
     int damageTakenFromBullet = 9;
     int damageTakeFromCollision = 5;
     float angleForRotation;
@@ -75,21 +75,21 @@ public class SpaceShipManager : NetworkBehaviour
     }
     void TakeDamage(int Damage)
     {
+        Debug.Log(Damage);
+        Debug.Log(playerHealth);
         playerHealth -= Damage;
-        Events.instance.healthCount(playerHealth);
-        if (PlayerDead())
+        Debug.Log(playerHealth);
+        //Events.instance.healthCount(playerHealth);
+        if (playerHealth<=0)
         {
-            StartCoroutine(SpaceShipDestroy());
+            animator.SetTrigger("Destroy");
         }
     }
 
-    private IEnumerator SpaceShipDestroy()
+    private void SpaceShipDestroy()
     {
-        animator.SetTrigger("Destroy");
-        yield return new WaitForSeconds(.5f);
         if(IsOwner && GameStateManager.Instance.currentGameMode == GameMode.MultiPlayer)
         {
-            
             Events.instance.playerDeathUI();
             Events.instance.playerDeathListAdd();
             CallDespwan();
@@ -101,13 +101,6 @@ public class SpaceShipManager : NetworkBehaviour
         }
     }
  
-
-    bool PlayerDead()
-    {
-        if (playerHealth <= 0)
-            return true;
-        else return false;
-    }
     void CallDespwan()
     {
         DesapwnServerRpc((uint)OwnerClientId);
@@ -225,7 +218,7 @@ public class SpaceShipManager : NetworkBehaviour
 
         if (collision.gameObject.CompareTag("DropMissile"))
         {
-            missleCount += 5;
+            missleCount += 6;
             Events.instance.ammoCount(bulletCount, missleCount);
         }
 

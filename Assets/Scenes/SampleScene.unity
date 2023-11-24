@@ -5722,6 +5722,7 @@ MonoBehaviour:
   hostDisconnectUI: {fileID: 311374742}
   hostDisconnectMenu: {fileID: 293651438}
   gameWonPanel: {fileID: 2013190927}
+  shipManager: {fileID: 2902715986107336276, guid: c89b590475552dc469af1f17a718f05f, type: 3}
 --- !u!4 &2017092473
 Transform:
   m_ObjectHideFlags: 0
