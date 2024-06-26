@@ -16,7 +16,7 @@ public class LobbyUI : MonoBehaviour
     [SerializeField] TMP_InputField lobbyCode;
     [SerializeField] CreateUi createUi;
     [SerializeField] TMP_InputField playerName;
-
+    [SerializeField] GameObject loadingUi;
     [SerializeField] Transform lobbyListGameobject;
     [SerializeField] Transform template;
     // Start is called before the first frame update
