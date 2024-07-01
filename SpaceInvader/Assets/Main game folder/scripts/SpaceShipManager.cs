@@ -36,8 +36,7 @@ public class SpaceShipManager : NetworkBehaviour
             PlayerData playerData = MultiplayerManager.instance.GetPlayerDataFromClientId(OwnerClientId);
             playerVisual.SetPlayerColor(MultiplayerManager.instance.GetPlayerColorForPlayer(playerData.colorId));
         }
-        
-        
+
     }
 
     
@@ -75,11 +74,8 @@ public class SpaceShipManager : NetworkBehaviour
     }
     void TakeDamage(int Damage)
     {
-        Debug.Log(Damage);
-        Debug.Log(playerHealth);
         playerHealth -= Damage;
-        Debug.Log(playerHealth);
-        //Events.instance.healthCount(playerHealth);
+        Events.instance.healthCount(playerHealth);
         if (playerHealth<=0)
         {
             animator.SetTrigger("Destroy");

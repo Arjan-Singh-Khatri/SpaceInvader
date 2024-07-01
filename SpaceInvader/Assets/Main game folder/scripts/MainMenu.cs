@@ -100,8 +100,6 @@ public class MainMenu : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-        healthSlider.value = shipManager.playerHealth;
-        
         if (LocalGamePaused)
         {
             if (Input.GetKeyUp(KeyCode.Escape))
@@ -293,7 +291,6 @@ public class MainMenu : NetworkBehaviour
     void HealthSlider(int health)
     {
         healthSlider.value = health;
-
     }
 
     void PlayerPanelToggleOn()
